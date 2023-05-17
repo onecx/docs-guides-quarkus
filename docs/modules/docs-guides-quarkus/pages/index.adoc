@@ -1,0 +1,40 @@
+= Quarkus
+
+Quarkus Kubernetes native Java stack comes with an extendable framework.
+
+* Homepage: https://quarkus.io/[https://quarkus.io/]
+* Guides: https://quarkus.io/guides/[https://quarkus.io/guides/]
+* Source code: https://github.com/quarkusio/quarkus[https://github.com/quarkusio/quarkus]
+* Quarkus quick starts: https://github.com/quarkusio/quarkus-quickstarts[https://github.com/quarkusio/quarkus-quickstarts]
+* Quarkiverse: https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html[https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html]
+* Quarkiverse source code: https://github.com/quarkiverse[https://github.com/quarkiverse]
+
+1000kit Quarkus
+
+* 1000kit quarkus extensions: https://github.com/1000kit/tkit-quarkus[https://github.com/1000kit/tkit-quarkus]
+
+== Requirements
+
+For the developing the Quarkus application we need to install these tools:
+
+=== Java developer IDE
+
+    * https://www.jetbrains.com/de-de/idea/download/[IntelliJ IDEA] *RECOMMENDED!*
+    * https://code.visualstudio.com/download[Visual Code]
+    * https://www.eclipse.org/downloads/[Eclipse]
+    * https://netbeans.apache.org/download/[Netbeans]
+    * https://www.vim.org/[Vim]
+
+== Links
+
+Few of thousand useful links:
+
+* https://quarkus.io/guides/[Quarkus guides]
+* https://quarkus.io/quarkus-workshops/super-heroes/[Quarkus workshop]
+* https://docs.oracle.com/javase/tutorial/[Java tutorial]
+* https://microprofile.io/[MicroProfile - specification]
+* https://smallrye.io/[Smallrye - MicroProfile implementation]
+* https://github.com/quarkusio/quarkus[Quarkus source code]
+* https://www.docker.com/[Docker]
+* https://www.testcontainers.org/[TestContainers]
+* https://kubernetes.io/[Kubernetes]

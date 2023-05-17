@@ -1,0 +1,13 @@
+= Start project
+
+The Quarkus offers the https://code.quarkus.io/[WEB project generator] or https://quarkus.io/guides/maven-tooling[Maven plugin] to quickly create Quarkus project.
+For example:
+
+[source,java]
+----
+mvn io.quarkus:quarkus-maven-plugin:{{< param QuarkusVersion >}}:create \
+    -DprojectGroupId=org.tkit.quarkus.example \
+    -DprojectArtifactId=tkit-quarkus-example-base \
+    -DclassName="org.tkis.example.TestRestController" \
+    -Dpath="/example"
+----
