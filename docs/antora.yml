@@ -2,4 +2,4 @@ name: docs-guides-quarkus
 title: Quarkus
 version: latest
 nav:
-  - modules/docs-guides-quarkus/nav.adoc
+  - modules/ROOT/nav.adoc
