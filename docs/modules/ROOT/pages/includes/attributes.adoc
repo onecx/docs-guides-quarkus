@@ -1,0 +1,20 @@
+:quarkus-version: 2.16.7.Final
+:tkit-version: 0.16.0
+
+:maven-version: [3.6.2,)
+
+:project-structure-package: io.github.onecx
+
+:java-version: 17
+
+:maven-group-id: io.github.onecx
+:example-maven-group-id: {maven-group-id}.quarkus
+:example-maven-artifact-id: onecx-quarkus-example
+:example-maven-version: 999-SNAPSHOT
+:example-maven-class-name: io.github.onecx.example.ExampleRestController
+
+:parent-soruce-code-url: https://github.com/onecx/onecx-quarkus2-parent
+
+:example-parent-group-id: io.github.onecx
+:example-parent-artifact-id: onecx-quarkus2-parent
+:example-parent-version: 0.16.0

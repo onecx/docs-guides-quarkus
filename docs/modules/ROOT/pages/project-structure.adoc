@@ -1,13 +1,101 @@
-= Start project
+= Project structure
+:icons: font
 
-The Quarkus offers the https://code.quarkus.io/[WEB project generator] or https://quarkus.io/guides/maven-tooling[Maven plugin] to quickly create Quarkus project.
-For example:
+include::./includes/attributes.adoc[]
 
-[source,java]
+== OneCx Quarkus project structure
+
+OneCx Quarkus project is [Maven](https://maven.apache.org/) project.We use default maven structure which includes: java code and resources, helm templates and dockerfile.
+
+[source]
 ----
-mvn io.quarkus:quarkus-maven-plugin:{{< param QuarkusVersion >}}:create \
-    -DprojectGroupId=org.tkit.quarkus.example \
-    -DprojectArtifactId=tkit-quarkus-example-base \
-    -DclassName="org.tkis.example.TestRestController" \
-    -Dpath="/example"
+src
+  main
+     docker
+        Dockerfile.jvm
+        Dockerfile.native
+     helm
+        Chart.yaml
+        values.yaml
+     java
+     resources
+  test
+     java
+     resources
+pom.xml
 ----
+The helm template are in the `src/main/helm` and dockerfile is in the `src/main/docker/Dockerfile`
+
+== Java naming convention
+
+Basically all our microservice consist of 3 main layers
+
+* Endpoint components providing REST api to outside world.
+* IntermediateService which implements business logic. These components are often omitted.
+* Entity services are components taking care of data management, basically fetching storing the data from/to database
+
+Java classes:
+
+* RestController – Any class named RestController is supposed to expose API to outside world  For example: `UserRestController`
+* Service – (IntermediateService) the core components containing business logic, shareable piece of codes for other components usually controllers or other services as well. For example: `UserValidationService`
+* Mapper - Object mapper. For example: `UserMapper`.
+* DAO - Data access object (JPA entity wrapper) For example: `UserDAO`
+
+Each project should have own package which contains the domain of the project.
+All projects start with a package `{project-structure-package}` and package `{grourpId}.{artefactId | simplified}`
+
+For example our Maven project:
+
+* groupId = `{project-structure-package}.quarkus`
+* artefactId = `onecx-quarkus-example`
+
+[source,java,subs=attributes+]
+----
+{project-structure-package}.quarkus.example
+----
+
+Model and REST packages:
+[source,java,subs=attributes+]
+----
+domain.models  // JPA entities
+domain.daos // DAO and search criteria for the entities
+rs // common rs classes (CORSFilter, JaxRSActivator..)
+rs.internal.controllers // REST controllers
+rs.internal.models // internal DTOs object
+rs.internal.mappers // internal DTOs mappers
+rs.{version}.controllers // REST controllers
+rs.{version}.models // external DTOs
+rs.{version}.mappers // external DTOs mappers
+----
+
+Portal user profile application
+[source,java,subs=attributes+]
+----
+{project-structure-package}.portal.user.domain.models  // JPA entities
+{project-structure-package}.portal.user.domain.daos // DAO for the entities
+{project-structure-package}.portal.user.rs //common rs classes (CORSFilter, JaxRSActivator..)
+{project-structure-package}.portal.user.rs.internal.controllers // REST controllers
+{project-structure-package}.portal.user.rs.internal.models // internal DTOs object
+{project-structure-package}.portal.user.rs.internal.mappers // internal DTOs mappers
+{project-structure-package}.portal.user.rs.{version}.controllers // REST controllers
+{project-structure-package}.portal.user.rs.{version}.models // external DTOs
+{project-structure-package}.portal.user.rs.{version}.mappers // external DTOs mappers
+----
+
+[IMPORTANT]
+.For the rest-controllers we need to have two types of the rest endpoints:
+====
+  * internal - which are us only for the internal domain, for example for UI
+  * {version | external} - these REST controllers are external interfaces to rest of the world. For these we need to have version.
+====
+
+== REST naming convention
+
+Currently, for the REST endpoints we have review process. Useful links:
+
+* https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md[Microsoft rest API guidelines]
+* https://en.wikipedia.org/wiki/Representational_state_transfer[REST]
+
+== Links
+
+* Reference implementation: https://github.com/onecx/docs-guides-quarkus[docs-guides-quarkus]

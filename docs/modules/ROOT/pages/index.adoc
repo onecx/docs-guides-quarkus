@@ -1,4 +1,7 @@
 = Quarkus
+:icons: font
+
+include::./includes/attributes.adoc[]
 
 Quarkus Kubernetes native Java stack comes with an extendable framework.
 

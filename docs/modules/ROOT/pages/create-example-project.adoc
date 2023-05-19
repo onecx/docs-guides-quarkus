@@ -1,0 +1,251 @@
+= Start project
+:icons: font
+
+include::./includes/attributes.adoc[]
+
+The Quarkus offers the https://code.quarkus.io/[WEB project generator] or https://quarkus.io/guides/maven-tooling[Maven plugin] to quickly create Quarkus project.
+
+
+[TIP]
+The maven wrapper is used to specify the Maven version for the public project.
+Please delete the maven wrapper from the project repository. We will use the maven {maven-version} version.
+
+== Base project setup
+
+But to understand the Quarkus project we will create our project from scratch. First we need to create project from template:
+
+[source,java,subs=attributes+]
+----
+mvn io.quarkus:quarkus-maven-plugin:{quarkus-version}:create \
+    -DprojectGroupId={example-maven-group-id} \
+    -DprojectArtifactId={example-maven-artifact-id} \
+    -DprojectVersion={example-maven-version} \
+    -DclassName="{example-maven-class-name}" \
+    -Dpath="/onecx-quarkus-example"
+----
+
+[source]
+----
+cd onecx-quarkus-example
+----
+
+[IMPORTANT]
+For all OneCx project we will have `groupId={maven-group-id}.{domain | subdomains }` and `artefactId={project-name}`
+The project name muss be equals the git repository name. All project will use the https://www.conventionalcommits.org/en/v1.0.0/[Conventional Commits] and
+https://semver.org/[SemVer 2.0]. The maven version of the project will be `{example-maven-version}` and it is not used to determine release artifact version.
+
+Minimum maven configuration for our project is this:
+[source,xml,subs=attributes+]
+----
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>{example-maven-group-id}</groupId>
+    <artifactId>{example-maven-artifact-id}</artifactId>
+    <version>{example-maven-version}</version>
+    <name>{example-maven-artifact-id}</name>
+</project>
+----
+
+=== Parent maven project
+
+Pom file can be configured in many ways. The recommended way in our projects is to use **parent pom** from our repository, designed especially to use in OneCx applications. Maven parent POM (or super POM) is used to structure the project to avoid redundancies or duplicate configurations using inheritance between pom files.
+Maven creates a 'final POM' by merging the information from parent and module POM. In child POM we only need to include `parent`, additional dependencies that are not specified in the parent file and these dependencies that are specified in `<dependencyManagement>` section, and we want to use them. You can find more information here:
+
+[TIP]
+More information about maven parent pom pattern https://maven.apache.org/guides/introduction/introduction-to-the-pom.html[Apache Maven Pom Documentation]
+
+[IMPORTANT]
+OneCx maven parent project source code repository {parent-soruce-code-url}[Link]
+
+[source,xml,subs=attributes+]
+----
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>{example-parent-group-id}</groupId>
+        <artifactId>{example-maven-group-id}</artifactId>
+        <version>{example-maven-version}</version>
+    </parent>
+
+    <groupId>{example-maven-group-id}</groupId>
+    <artifactId>{example-maven-artifact-id}</artifactId>
+    <version>{example-maven-version}</version>
+    <name>{example-maven-artifact-id}</name>
+
+    <dependencies>
+        <!-- project dependencies -->
+    </dependencies>
+
+</project>
+----
+
+==== Default POM configuration
+
+If you want to create pom from scratch or have better understanding how it works, you can follow undermentioned steps.
+
+For the Quarkus application we need to add Quarkus
+https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html[BOM dependencies]. There two possible solution:
+
+- Quarkus BOM - this is base Quarkus which contains only Quarkus internal extensions.
+- Quarkus BOM universe - this is default use with the Quarkus project generator. This BOM contains all Quarkus extension and external project like https://github.com/apache/camel-quarkus[Quarkus Camel extension].
+
+Example of the parent pom configuration.
+[source,xml,subs=attributes+]
+----
+    <properties>
+        <!-- build -->
+        <format.skip>false</format.skip>
+        <enforcer.skip>false</enforcer.skip>
+        <enforce-test-deps-scope.skip>${enforcer.skip}</enforce-test-deps-scope.skip>
+
+        <!-- Quarkus configuration -->
+        <quarkus.version>{quarkus-version}</quarkus.version>
+        <quarkus.smallrye-open-api.version>3.1.1</quarkus.smallrye-open-api.version>
+        <quarkiverse.quarkus-openapi-generator.version>1.3.1</quarkiverse.quarkus-openapi-generator.version>
+        <quarkiverse.mockserver.version>0.6.0</quarkiverse.mockserver.version>
+
+        <!-- tkit -->
+        <tkit.quarkus.version>{tkit-version}</tkit.quarkus.version>
+
+        <!-- Maven configuration -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>{java-version}</maven.compiler.source>
+        <maven.compiler.target>{java-version}</maven.compiler.target>
+        <maven.compiler.release>{java-version}</maven.compiler.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler-plugin.version>3.10.1</maven.compiler-plugin.version>
+        <maven.surefire-plugin.version>3.0.0</maven.surefire-plugin.version>
+        <maven.formatter-plugin.version>2.22.0</maven.formatter-plugin.version>
+        <maven.impsort-plugin.version>1.8.0</maven.impsort-plugin.version>
+        <maven.enforcer-plugin.version>3.2.1</maven.enforcer-plugin.version>
+
+        <!-- Maven central release configuration -->
+        <nexus.staging-plugin.version>1.6.13</nexus.staging-plugin.version>
+        <source-plugin.version>3.2.1</source-plugin.version>
+        <javadoc-plugin.version>3.5.0</javadoc-plugin.version>
+        <gpg-plugin.version>3.0.1</gpg-plugin.version>
+
+        <!-- Sonar -->
+        <sonar.coverage.exclusions>
+            **/model*/**/*.*,**/resources/**/*.*,**/JaxRsActivator*
+        </sonar.coverage.exclusions>
+<!--        <sonar.exclusions></sonar.exclusions>-->
+
+        <!-- Other -->
+        <projectlombok.version>1.18.26</projectlombok.version>
+        <projectlombok.mapstruct-binding.version>0.2.0</projectlombok.mapstruct-binding.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <assertj.version>3.24.2</assertj.version>
+        <hibernate-orm.version>5.4.27.SP1</hibernate-orm.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>{quarkus-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.tkit.quarkus.lib</groupId>
+                <artifactId>tkit-quarkus-bom</artifactId>
+                <version>{tkit-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+----
+
+We also set up the project for java `{java-version}` version and source code encoding to `UTF-8`.
+
+==== Compiler
+
+Now we would need to add the Maven plugins to build the Quarkus application correctly.
+
+- maven-compile-plugin - execute java compilation process
+- quarkus-maven-plugin - extends the compilation process to generated Quarkus byte-code and add the development mode for maven project.
+
+[source,xml,subs=attributes+]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-maven-plugin</artifactId>
+            <version>{quarkus-version}</version>
+            <extensions>true</extensions>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>build</goal>
+                        <goal>generate-code</goal>
+                        <goal>generate-code-tests</goal>
+                    </goals>
+                    <configuration>
+                        <properties>
+                            <quarkus.container-image.build>true</quarkus.container-image.build>
+                            <quarkus.container-image.group>localhost</quarkus.container-image.group>
+                        </properties>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <compilerArgs>
+                    <arg>-parameters</arg>
+                    <arg>-Amapstruct.defaultComponentModel=cdi</arg>
+                    <arg>-Amapstruct.defaultInjectionStrategy=constructor</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>${mapstruct.version}</version>
+                    </path>
+                    <path>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${projectlombok.version}</version>
+                    </path>
+                    <path>
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok-mapstruct-binding</artifactId>
+                        <version>${projectlombok.mapstruct-binding.version}</version>
+                    </path>
+                    <path>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-jpamodelgen</artifactId>
+                        <version>${hibernate-orm.version}</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+----
+
+The configuration for the http://maven.apache org/plugins/maven-compiler-plugin/compile-mojo.html[maven-compile-plugin] `parameters`
+is set to `true` to generate metadata for reflection on method parameters.
+
+=== Compilation
+
+Now we can compile our project:
+
+[source]
+----
+mvn clean package
+----
+
+All the quarkus project are microservices where we push docker image and helm chart to registry. The maven `install` does not need to be executed.

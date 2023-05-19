@@ -1,4 +1,5 @@
-* xref:project-structure.adoc[Project structure]
 
+* xref:project-structure.adoc[Project structure]
+* xref:create-example-project.adoc[Create new example]
 
 
