@@ -42,7 +42,7 @@ Java classes:
 * DAO - Data access object (JPA entity wrapper) For example: `UserDAO`
 
 Each project should have own package which contains the domain of the project.
-All projects start with a package `{project-structure-package}` and package `{grourpId}.{artefactId | simplified}`
+All projects start with a package `{project-structure-package}` and package `<groupId>.<artefactId | simplified>`
 
 For example our Maven project:
 
@@ -63,9 +63,9 @@ rs // common rs classes (CORSFilter, JaxRSActivator..)
 rs.internal.controllers // REST controllers
 rs.internal.models // internal DTOs object
 rs.internal.mappers // internal DTOs mappers
-rs.{version}.controllers // REST controllers
-rs.{version}.models // external DTOs
-rs.{version}.mappers // external DTOs mappers
+rs.<version>.controllers // REST controllers
+rs.<version>.models // external DTOs
+rs.<version>.mappers // external DTOs mappers
 ----
 
 Portal user profile application
@@ -77,16 +77,16 @@ Portal user profile application
 {project-structure-package}.portal.user.rs.internal.controllers // REST controllers
 {project-structure-package}.portal.user.rs.internal.models // internal DTOs object
 {project-structure-package}.portal.user.rs.internal.mappers // internal DTOs mappers
-{project-structure-package}.portal.user.rs.{version}.controllers // REST controllers
-{project-structure-package}.portal.user.rs.{version}.models // external DTOs
-{project-structure-package}.portal.user.rs.{version}.mappers // external DTOs mappers
+{project-structure-package}.portal.user.rs.<version>.controllers // REST controllers
+{project-structure-package}.portal.user.rs.<version>.models // external DTOs
+{project-structure-package}.portal.user.rs.<version>.mappers // external DTOs mappers
 ----
 
 [IMPORTANT]
 .For the rest-controllers we need to have two types of the rest endpoints:
 ====
   * internal - which are us only for the internal domain, for example for UI
-  * {version | external} - these REST controllers are external interfaces to rest of the world. For these we need to have version.
+  * <version | external> - these REST controllers are external interfaces to rest of the world. For these we need to have version.
 ====
 
 == REST naming convention

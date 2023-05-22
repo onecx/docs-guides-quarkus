@@ -30,7 +30,7 @@ cd onecx-quarkus-example
 ----
 
 [IMPORTANT]
-For all OneCx project we will have `groupId={maven-group-id}.{domain | subdomains }` and `artefactId={project-name}`
+For all OneCx project we will have `groupId=<maven-group-id>.<domain | subdomains>` and `artefactId=<project-name>`
 The project name muss be equals the git repository name. All project will use the https://www.conventionalcommits.org/en/v1.0.0/[Conventional Commits] and
 https://semver.org/[SemVer 2.0]. The maven version of the project will be `{example-maven-version}` and it is not used to determine release artifact version.
 
