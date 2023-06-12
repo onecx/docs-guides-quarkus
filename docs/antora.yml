@@ -1,5 +1,3 @@
-name: docs-guides-quarkus
+name: guides
 title: Quarkus
 version: latest
-nav:
-  - modules/ROOT/nav.adoc
