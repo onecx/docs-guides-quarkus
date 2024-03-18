@@ -1,0 +1,16 @@
+= REST API for CRUD services
+
+== GET
+
+== POST
+
+== PUT
+
+== DELETE
+
+
+== Links
+
+* Reference implementation: https://github.com/onecx/docs-guides-quarkus[docs-guides-quarkus]
+* https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md[Microsoft rest API guidelines]
+* https://en.wikipedia.org/wiki/Representational_state_transfer[REST]

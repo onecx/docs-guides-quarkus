@@ -1,0 +1,351 @@
+= Backend service (svc)
+
+include::./includes/attributes.adoc[]
+
+== Project setup
+
+Now that xref:project-structure.adoc[project structure] is set up for the Onecx Quarkus project, we can configure the backend service and extend the project configuration.
+
+=== Parent configuration
+
+Project maven parent configuration, artifactId and project version.
+
+[TIP]
+More information about maven parent pom pattern https://maven.apache.org/guides/introduction/introduction-to-the-pom.html[Apache Maven Pom Documentation]
+
+.Maven parent configuration
+[%collapsible%open]
+====
+[source,xml,subs=attributes+]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>{onecx-example-parent-group-id}</groupId>
+        <artifactId>{onecx-example-parent-artifact-id}</artifactId>
+        <version>{onecx-example-parent-version}</version>
+    </parent>
+
+    <artifactId>{onecx-example-artifact-id}-svc</artifactId>
+    <version>{onecx-example-version}</version>
+
+</project>
+----
+====
+
+=== Dependencies
+
+[IMPORTANT]
+All version of the dependencies are defined in the `{onecx-quarkus3-parent-artifact-id}`. Project itself should not define any version of these dependencies.
+
+By default, we will have the following maven dependencies:
+
+* {tkit-quarkus-url}[tkit-quarkus] are quarkus extensions for `JPA`, `log`, `json-log` and `rest-log`
+* {quarkus-url}[quarkus] cloud native extensions (health, metrics, tracing, ...), quarkus-rest, hibernate-orm and liquibase
+* {lombok-url}[lombok] to generate getters, setters and much more
+* {mapstruct-url}[mapstruct] Generator to generate a source that maps `DTO` to `JPA` models and vice versa
+
+
+.Backend service default dependencies
+[%collapsible]
+====
+[source,xml,subs=attributes+]
+----
+<dependencies>
+        <!-- ONECX -->
+
+        <!-- 1000kit -->
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-rest-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-log-cdi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-log-rs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-log-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-rest</artifactId>
+        </dependency>
+
+        <!-- QUARKUS -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-liquibase</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.blagerweij</groupId>
+            <artifactId>liquibase-sessionlock</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-health</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-reactive</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-context-propagation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-opentelemetry</artifactId>
+        </dependency>
+
+        <!-- OTHER -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+</dependencies>
+----
+====
+
+==== Database configuration
+
+In `onecx` project we do use the `postgresql` database for our backend services.
+
+[source,properties]
+----
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.jdbc.max-size=30
+quarkus.datasource.jdbc.min-size=10
+
+quarkus.hibernate-orm.database.generation=validate
+quarkus.hibernate-orm.jdbc.timezone=UTC
+quarkus.liquibase.migrate-at-start=true
+quarkus.liquibase.validate-on-migrate=true
+----
+
+==== Database schema change management
+
+For the database schema change management we do use {quarkus-url}[quarkus-liquibase] extension. To generate a database changes or validate the database changes we do use https://github.com/1000kit/tkit-liquibase-plugin[tkit-liquibase-plugin] which is configured in the {onecx-quarkus3-parent-artifact-id}.
+
+Quarkus liquibase configuration
+[source,properties]
+----
+quarkus.liquibase.migrate-at-start=true
+quarkus.liquibase.validate-on-migrate=true
+----
+
+By default, liquibase does not use session lock. To activate the liquibase session lock during the start of our service we do use `com.github.blagerweij:liquibase-sessionlock` liquibase extension. No configuration is need to this extension.
+
+To generate the database changes run following command
+[source,shell]
+----
+mvn clean compile -Pdb-diff
+----
+
+To check if you are missing any changes run following command
+[source,shell]
+----
+mvn validate -Pdb-check
+----
+
+
+=== Generate rest endpoint
+
+=== Implementation
+
+=== Tests
+
+For the test we add following dependencies to our project
+
+.Test dependencies
+[%collapsible]
+====
+[source,xml,subs=attributes+]
+----
+<dependencies>
+        <!-- TEST -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-test-db-import</artifactId>
+            <scope>test</scope>
+        </dependency>
+</dependencies>
+----
+====
+
+=== Security
+
+Activate scope security for the `http` service.
+
+==== Multi tenancy
+
+For multi tenancy we will to use {onecx-quarkus-url}[onecx-quarkus-tenant] extension.
+
+TIP: For more information about the configuration please check the documentation page {onecx-quarkus-url}[onecx-quarkus-tenant]
+
+.Multi tenancy maven dependencies
+[%collapsible]
+====
+[source,xml,subs=attributes+]
+----
+<dependencies>
+        <!-- ONECX -->
+        <dependency>
+            <groupId>org.tkit.onecx.quarkus</groupId>
+            <artifactId>onecx-tenant</artifactId>
+        </dependency>
+        <!-- 1000kit -->
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-jpa</artifactId>
+        </dependency>
+</dependencies>
+----
+====
+
+Now we need to configure our application
+
+[source,properties]
+----
+# hibernate multi-tenant configuration
+quarkus.hibernate-orm.multitenant=DISCRIMINATOR
+
+# enable or disable multi-tenancy support
+tkit.rs.context.tenant-id.enabled=true
+----
+
+[IMPORTANT]
+Header configuration for the token, and token parsing is implemented in 1000kit {tkit-quarkus-url}[tkit-rest-context] quarkus extensions. Please check the documentation of the extension.
+
+===== Testing
+
+For the test we can use mock settings where we can define which claim attribute of the token we will use: `%test.tkit.rs.context.tenant-id.mock.claim-org-id=orgId` and we must define mapping between token claim value and tenant ID `%test.tkit.rs.context.tenant-id.mock.data.<claim-value>=<tenant-id>`.
+
+[source,properties]
+----
+%test.tkit.rs.context.tenant-id.enabled=true
+%test.tkit.rs.context.tenant-id.mock.enabled=true
+%test.tkit.rs.context.tenant-id.mock.default-tenant=default
+%test.tkit.rs.context.tenant-id.mock.claim-org-id=orgId
+%test.tkit.rs.context.tenant-id.mock.data.org1=tenant-100
+%test.tkit.rs.context.tenant-id.mock.data.org2=tenant-200
+----
+
+For the test we can create a simple help method which will creates a token for our tests
+
+[source,java]
+----
+@SuppressWarnings("java:S2187")
+public class AbstractTest {
+
+    // header ID of the principal token for tests
+    protected static final String APM_HEADER_PARAM = "apm-principal-token";
+
+    // token claim for tenant-id
+    protected static final String CLAIMS_ORG_ID = ConfigProvider.getConfig()
+            .getValue("%test.tkit.rs.context.tenant-id.mock.claim-org-id", String.class);
+
+   /**
+    * Method creates a principal token for test.
+    * @param organizationId organization ID
+    * @return the corresponding test
+    */
+    protected static String createToken(String organizationId) {
+        try {
+            String userName = "test-user";
+            JsonObjectBuilder claims = Json.createObjectBuilder();
+            claims.add(Claims.preferred_username.name(), userName);
+            claims.add(Claims.sub.name(), userName);
+            claims.add(CLAIMS_ORG_ID, organizationId);
+            PrivateKey privateKey = KeyUtils.generateKeyPair(2048).getPrivate();
+            return Jwt.claims(claims.build()).sign(privateKey);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+}
+----
+
+In our test we can use `createToken` method to create a token
+
+[source,java]
+----
+
+@QuarkusTest
+@TestHTTPEndpoint(ExampleRestController.class)
+class ExampleRestControllerTenantTest extends AbstractTest {
+
+    @Test
+    void createNewThemeTest() {
+        var dto = given()
+                .when()
+                .contentType(APPLICATION_JSON)
+                .header(APM_HEADER_PARAM, createToken("org1"))
+                .body(themeDto)
+                .post()
+                .then()
+                .statusCode(CREATED.getStatusCode())
+                .extract()
+                .body().as(ExampleDTO.class);
+    }
+}
+----

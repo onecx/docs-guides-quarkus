@@ -5,15 +5,71 @@
     
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.github.onecx</groupId>
-        <artifactId>onecx-quarkus2-parent</artifactId>
-        <version>0.16.0</version>
-    </parent>
-
     <groupId>io.github.onecx.quarkus</groupId>
-    <artifactId>onecx-quarkus-example</artifactId>
+    <artifactId>onecx-quarkus-docs</artifactId>
     <version>999-SNAPSHOT</version>
     <name>onecx-quarkus-example</name>
+
+    <properties>
+        <quarkus.version>3.8.2</quarkus.version>
+        <onecx.parent.version>0.37.0</onecx.parent.version>
+        <onecx.quarkus.version>0.13.0</onecx.quarkus.version>
+        <tkit.quarkus.version>2.15.0</tkit.quarkus.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-bom</artifactId>
+            <version>${quarkus.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.onecx</groupId>
+            <artifactId>onecx-quarkus3-parent</artifactId>
+            <version>${onecx.parent.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.onecx.quarkus</groupId>
+            <artifactId>onecx-quarkus-bom</artifactId>
+            <version>${onecx.quarkus.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.tkit.quarkus.lib</groupId>
+            <artifactId>tkit-quarkus-bom</artifactId>
+            <version>${tkit.quarkus.version}</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>docs/modules/quarkus/examples</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>docs/modules/quarkus/pages/includes/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/docs/templates/includes</directory>
+                                    <include>attributes.adoc</include>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>    

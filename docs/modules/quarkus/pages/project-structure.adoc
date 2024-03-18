@@ -9,6 +9,7 @@ OneCx Quarkus project is [Maven](https://maven.apache.org/) project.We use defau
 
 [source]
 ----
+.github
 src
   main
      docker
@@ -17,14 +18,21 @@ src
      helm
         Chart.yaml
         values.yaml
+     openapi
+        example-openapi.yaml
      java
      resources
+       application.properties
   test
      java
      resources
 pom.xml
 ----
-The helm template are in the `src/main/helm` and dockerfile is in the `src/main/docker/Dockerfile`
+The helm template are in the `src/main/helm` and dockerfile is in the `src/main/docker/Dockerfile` directory.
+
+GitHub project configuration is defined in the `.github` directory. For more information please check next chapter xref:quarkus-github-actions.adoc[Project GitHub Actions]
+
+IMPORTANT: Onecx Quarkus project GitHub Actions xref:quarkus-github-actions.adoc[Project GitHub Actions] setup.
 
 == Java naming convention
 
@@ -46,7 +54,7 @@ All projects start with a package `{project-structure-package}` and package `<gr
 
 For example our Maven project:
 
-* groupId = `{project-structure-package}.quarkus`
+* groupId = `{project-structure-package}.example`
 * artefactId = `onecx-quarkus-example`
 
 [source,java,subs=attributes+]
@@ -59,27 +67,29 @@ Model and REST packages:
 ----
 domain.models  // JPA entities
 domain.daos // DAO and search criteria for the entities
+domain.services // Common shared domain services
 rs // common rs classes (CORSFilter, JaxRSActivator..)
 rs.internal.controllers // REST controllers
-rs.internal.models // internal DTOs object
 rs.internal.mappers // internal DTOs mappers
 rs.<version>.controllers // REST controllers
-rs.<version>.models // external DTOs
+rs.<version>.logs // log mappers
 rs.<version>.mappers // external DTOs mappers
+rs.subdomain.<version>.controllers // subdomain REST controllers
+rs.subdomain.<version>.logs // log mappers
+rs.subdomain.<version>.mappers // subdomain DTOs mappers
 ----
 
-Portal user profile application
+Example application
 [source,java,subs=attributes+]
 ----
-{project-structure-package}.portal.user.domain.models  // JPA entities
-{project-structure-package}.portal.user.domain.daos // DAO for the entities
-{project-structure-package}.portal.user.rs //common rs classes (CORSFilter, JaxRSActivator..)
-{project-structure-package}.portal.user.rs.internal.controllers // REST controllers
-{project-structure-package}.portal.user.rs.internal.models // internal DTOs object
-{project-structure-package}.portal.user.rs.internal.mappers // internal DTOs mappers
-{project-structure-package}.portal.user.rs.<version>.controllers // REST controllers
-{project-structure-package}.portal.user.rs.<version>.models // external DTOs
-{project-structure-package}.portal.user.rs.<version>.mappers // external DTOs mappers
+{project-structure-package}.quarkus.example.domain.models  // JPA entities
+{project-structure-package}.quarkus.example.domain.daos // DAO for the entities
+{project-structure-package}.quarkus.example.domain.services // DAO for the entities
+{project-structure-package}.quarkus.example.rs //common rs classes (CORSFilter, JaxRSActivator..)
+{project-structure-package}.quarkus.example.rs.internal.controllers // REST controllers
+{project-structure-package}.quarkus.example.rs.internal.mappers // internal DTOs mappers
+{project-structure-package}.quarkus.example.rs.<version>.controllers // REST controllers
+{project-structure-package}.quarkus.example.rs.<version>.mappers // external DTOs mappers
 ----
 
 [IMPORTANT]
@@ -89,13 +99,94 @@ Portal user profile application
   * <version | external> - these REST controllers are external interfaces to rest of the world. For these we need to have version.
 ====
 
-== REST naming convention
+== Docker
 
-Currently, for the REST endpoints we have review process. Useful links:
+In the project we do have defined two docker files one for java base docker image and one for native build docker image. Source code of base docker image is in the GitHub repository {docker-quarkus-jvm-url}[docker-quarkus-native] and {docker-quarkus-jvm-url}[docker-quarkus-jvm].
 
-* https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md[Microsoft rest API guidelines]
-* https://en.wikipedia.org/wiki/Representational_state_transfer[REST]
+In the project we define corresponding `Dockerfiles`
 
-== Links
+.Dockerfile.jvm definition
+[%collapsible%open]
+====
+[source,dockerfile,subs=attributes+]
+----
+FROM ghcr.io/onecx/docker-quarkus-jvm:{docker-quarkus-jvm-version}
 
-* Reference implementation: https://github.com/onecx/docs-guides-quarkus[docs-guides-quarkus]
+COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 target/quarkus-app/*.jar /deployments/
+COPY --chown=185 target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
+USER 185
+----
+====
+
+.Dockerfile.native definition
+[%collapsible%open]
+====
+[source,dockerfile,subs=attributes+]
+----
+FROM ghcr.io/onecx/docker-quarkus-native:{docker-quarkus-native-version}
+
+COPY --chown=1001:root target/*-runner /work/application
+----
+====
+
+[IMPORTANT]
+Docker build configuration is defined in the {onecx-quarkus3-parent-url}[{onecx-quarkus3-parent-artifact-id}]
+
+[TIP]
+For more information about Quarkus docker extension check the official documentation {quarkus-url}container-image[quarkus-container-image-docker].
+
+== Helm
+
+In the `src/main/helm` we muss defined `Chart.yaml` in version `v2` and `values.yaml`. Helm chart of the service muss use the {helm-quarkus-app-name} helm dependencies. Alias for all onecx quarkus application is `{helm-quarkus-app-alias}`
+
+.Chart.yaml
+[%collapsible%open]
+====
+[source,yaml,subs=attributes+]
+----
+apiVersion: v2
+name: onecx-example-svc
+version: 0.0.0
+appVersion: 0.0.0
+description: Onecx example service
+keywords:
+  - example
+sources:
+  - https://github.com/onecx/onecx-example-svc
+maintainers:
+  - name: Tkit Developer
+    email: tkit_dev@1000kit.org
+dependencies:
+  - name: {helm-quarkus-app-name}
+    alias: {helm-quarkus-app-alias}
+    version: {helm-quarkus-app-version}
+    repository: {helm-quarkus-app-repo}
+----
+====
+
+.values.yaml
+[%collapsible%open]
+====
+[source,yaml,subs=attributes+]
+----
+app:
+  name: svc
+  image:
+    repository: "onecx/onecx-example-svc"
+  db:
+    enabled: true
+----
+====
+
+In our example we did activate the `database` configuration `app.db.enabled: true`.
+
+[IMPORTANT]
+For product base delivery `helm-of-helm` we do need to specify the `app.name`, which is the name of the component in the product (for example svc, bff, operator).
+
+[NOTE]
+For more details of the helm template configuration check the repository of {helm-quarkus-app-url}[{helm-quarkus-app-name}]
+
+[TIP]
+Helm documentation {helm-url}[helm].

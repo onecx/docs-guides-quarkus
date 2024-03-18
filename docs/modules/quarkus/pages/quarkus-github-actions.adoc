@@ -1,0 +1,3 @@
+== Quarkus GitHub Actions
+
+include::./includes/attributes.adoc[]

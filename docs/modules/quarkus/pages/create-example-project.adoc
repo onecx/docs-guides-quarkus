@@ -112,7 +112,7 @@ Example of the parent pom configuration.
         <quarkiverse.mockserver.version>0.6.0</quarkiverse.mockserver.version>
 
         <!-- tkit -->
-        <tkit.quarkus.version>{tkit-version}</tkit.quarkus.version>
+        <tkit.quarkus.version>{tkit-quarkus-version}</tkit.quarkus.version>
 
         <!-- Maven configuration -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
