@@ -139,7 +139,7 @@ For more information about Quarkus docker extension check the official documenta
 
 == Helm
 
-In the `src/main/helm` we muss defined `Chart.yaml` in version `v2` and `values.yaml`. Helm chart of the service muss use the {helm-quarkus-app-name} helm dependencies. Alias for all onecx quarkus application is `{helm-quarkus-app-alias}`
+In the `src/main/helm` we muss defined `Chart.yaml` in version `v2` and `values.yaml`. Helm chart of the service muss use the {helm-quarkus-app-name} helm dependencies. Alias for all onecx quarkus application is `{helm-quarkus-app-alias}`. GitHub pipeline replace chart `version` and `appVersion` during the build with current service version.
 
 .Chart.yaml
 [%collapsible%open]

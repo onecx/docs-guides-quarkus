@@ -1,0 +1,108 @@
+= REST API
+
+== REST API for CRUD services
+
+=== GET
+
+=== POST
+
+=== PUT
+
+=== DELETE
+
+== Error Response
+
+[cols="1,1"]
+|====
+| *400*
+| We define a `Problem Detail Response` object that we use for request validation
+
+
+| *401*
+| is provided by framework, not part of API definition
+
+| *403*
+| is provided by framework, not part of API definition
+
+| *500*
+|  technical error (unhandled exception) e.g. In case depending on services are not available, unhandled database exceptions, ...
+
+|====
+
+[IMPORTANT]
+We do not include error code `500` in our `openapi.yaml` definition
+
+=== Problem Detail Response
+
+For request validation, for example for error code `400` we do define a Problem Detail Response.
+
+.Problem Detail Response
+[%collapsible%open]
+====
+[source,yaml]
+----
+components:
+  schemas:
+    ProblemDetailResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailParam'
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailInvalidParam'
+    ProblemDetailParam:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ProblemDetailInvalidParam:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+----
+====
+
+
+.Example error response
+[%collapsible%open]
+====
+[source,json]
+----
+{
+   "errorCode": "VALIDATION_ERROR",
+   "detail": "Your current status is NORMAL, but should one of the provided enumeration.",
+   "params": [
+      {
+        "key": "name",
+        "value": "Workspace-1"
+      }
+   ],
+   "invalidParams": [
+      {
+        "name": "status",
+        "message": "must be 'ACTIVE', or 'INACTIVE'"
+      }
+   ]
+}
+----
+====
+
+== Links
+
+* https://github.com/onecx/docs-guides-quarkus[docs-guides-quarkus]
+* https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md[Microsoft rest API guidelines]
+* https://en.wikipedia.org/wiki/Representational_state_transfer[REST]
+* https://datatracker.ietf.org/doc/html/rfc7807[RFC]

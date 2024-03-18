@@ -276,7 +276,7 @@ tkit.rs.context.tenant-id.enabled=true
 [IMPORTANT]
 Header configuration for the token, and token parsing is implemented in 1000kit {tkit-quarkus-url}[tkit-rest-context] quarkus extensions. Please check the documentation of the extension.
 
-===== Testing
+==== Multi tenancy tests
 
 For the test we can use mock settings where we can define which claim attribute of the token we will use: `%test.tkit.rs.context.tenant-id.mock.claim-org-id=orgId` and we must define mapping between token claim value and tenant ID `%test.tkit.rs.context.tenant-id.mock.data.<claim-value>=<tenant-id>`.
 

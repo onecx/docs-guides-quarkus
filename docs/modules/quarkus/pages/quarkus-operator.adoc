@@ -1,4 +1,4 @@
-== K8s operator (operator)
+= K8s operator (operator)
 
 include::./includes/attributes.adoc[]
 
