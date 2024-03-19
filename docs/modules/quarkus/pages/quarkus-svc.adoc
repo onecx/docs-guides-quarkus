@@ -234,7 +234,92 @@ For the test we add following dependencies to our project
 
 === Security
 
-Activate scope security for the `http` service.
+To enable scope security for backend services we need to add this Maven dependency.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.tkit.onecx.quarkus</groupId>
+    <artifactId>onecx-security</artifactId>
+</dependency>
+----
+
+The next step is to add the `OAuth` scopes to our OpenApi definition. In our example, we add the `read` scope to the `createRole` method.
+
+.Example openapi with scope
+[%collapsible]
+====
+[source,yaml,subs=attributes+]
+----
+openapi: 3.0.3
+info:
+  title: example service
+  version: 1.0.0
+servers:
+  - url: "http://onecx-exampel-svc:8080"
+paths:
+  /internal/roles:
+    get:
+      security:
+        - oauth2: [read]
+      operationId: createRole
+      responses:
+        201:
+          description: "Role created"
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://oauth.simple.api/token
+          scopes:
+            read: Grants read access
+----
+====
+
+Now we need to add the extension `org.tkit.onecx.quarkus:onecx-openapi-generator` which will generate the Quarkus annotation `@io.quarkus.security.PermissionsAllowed` for the security interceptor from our open API definition file. We add this extension as a dependency for the Maven plugin `org.openapitools:openapi-generator-maven-plugin`.
+
+[source,xml]
+----
+<plugin>
+    <groupId>org.openapitools</groupId>
+    <artifactId>openapi-generator-maven-plugin</artifactId>
+    <configuration>
+        <additionalProperties>onecx-scopes=true</additionalProperties>
+        <!-- configuration -->
+    </configuration>
+    <executions><!-- executions --></executions>
+    <dependencies>
+        <dependency>
+            <groupId>org.tkit.onecx.quarkus</groupId>
+            <artifactId>onecx-openapi-generator</artifactId>
+        </dependency>
+    </dependencies>
+</plugin>
+----
+
+To enable this extension, we also need to define additional properties `onecx-scopes=true`. Without this configuration, the generator uses the default Java source code template.
+
+Now our generated source code contains the annotation `@io.quarkus.security.PermissionsAllowed({"read"})` to the generated method.
+
+[source,java]
+----
+public interface RoleInternalApi {
+
+    @io.quarkus.security.PermissionsAllowed({ "read" })
+    @GET
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    Response createRole();
+
+}
+----
+
+The `org.tkit.onecx.quarkus:onecx-security` extension creates security audit data for the default Quarkus security extension during the build process. After enabling this extension, it is no longer possible to call this method without a token and with the scope `read`.
+
+[TIP]
+To disable security setup following property `tkit.security.auth.enabled=false`. This property is part fo (tkit-quarkus-url)[1000kit Quarkus extension]
 
 ==== Multi tenancy
 
