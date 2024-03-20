@@ -192,10 +192,239 @@ To check if you are missing any changes run following command
 mvn validate -Pdb-check
 ----
 
-
 === Generate rest endpoint
 
+In `onecx` project we do use API-first approach. First we need to defined our `REST` interface with `openApi`. Create a `example-v1.yaml` (pattern: <application>-<version>.yaml) in the `src/main/openapi` directory.
+
+.Example openapi file
+[%collapsible]
+====
+[source,yaml,subs=attributes+]
+----
+openapi: 3.0.3
+info:
+  title: example service
+  version: 1.0.0
+servers:
+  - url: "http://onecx-example-svc:8080"
+paths:
+  /internal/roles:
+    post:
+      operationId: createRole
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        201:
+          description: New role created
+          headers:
+            Location:
+              required: true
+              schema:
+                type: string
+                format: url
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
+components:
+  schemas:
+    CreateRoleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        shortDescription:
+          type: string
+        description:
+          type: string
+    ProblemDetailResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailParam'
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailInvalidParam'
+    ProblemDetailParam:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ProblemDetailInvalidParam:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+----
+====
+
+Now we can configure `org.tkit.onecx.quarkus:onecx-openapi-generator` Maven plugin. The important part of the Maven plugin configuration is:
+
+.OpenApi generator Maven plugin configuration for Quarkus
+[%collapsible%open]
+====
+[source,xml,subs=attributes+]
+----
+<configuration>
+    <generatorName>jaxrs-spec</generatorName>
+    <modelNameSuffix>DTO</modelNameSuffix>
+    <generateApiTests>false</generateApiTests>
+    <generateApiDocumentation>false</generateApiDocumentation>
+    <generateModelTests>false</generateModelTests>
+    <generateModelDocumentation>false</generateModelDocumentation>
+    <generateSupportingFiles>false</generateSupportingFiles>
+    <addCompileSourceRoot>true</addCompileSourceRoot>
+    <!-- Quarkus open-api generator library -->
+    <library>quarkus</library>
+    <configOptions>
+        <sourceFolder>/</sourceFolder>
+        <openApiNullable>false</openApiNullable>
+        <returnResponse>true</returnResponse>
+        <useTags>true</useTags>
+        <interfaceOnly>true</interfaceOnly>
+        <serializableModel>true</serializableModel>
+        <singleContentTypes>true</singleContentTypes>
+        <dateLibrary>java8</dateLibrary>
+        <useMicroProfileOpenAPIAnnotations>true</useMicroProfileOpenAPIAnnotations>
+        <!-- required for Quarkus 3 -->
+        <useJakartaEe>true</useJakartaEe>
+        <!-- enabled DTO validation -->
+        <useBeanValidation>true</useBeanValidation>
+        <java17>true</java17>
+    </configOptions>
+</configuration>
+----
+====
+
+
+.OpenApi generator full Maven plugin configuration
+[%collapsible]
+====
+[source,xml,subs=attributes+]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.openapitools</groupId>
+            <artifactId>openapi-generator-maven-plugin</artifactId>
+            <configuration>
+                <generatorName>jaxrs-spec</generatorName>
+                <modelNameSuffix>DTO</modelNameSuffix>
+                <generateApiTests>false</generateApiTests>
+                <generateApiDocumentation>false</generateApiDocumentation>
+                <generateModelTests>false</generateModelTests>
+                <generateModelDocumentation>false</generateModelDocumentation>
+                <generateSupportingFiles>false</generateSupportingFiles>
+                <addCompileSourceRoot>true</addCompileSourceRoot>
+                <library>quarkus</library>
+                <configOptions>
+                    <sourceFolder>/</sourceFolder>
+                    <openApiNullable>false</openApiNullable>
+                    <returnResponse>true</returnResponse>
+                    <useTags>true</useTags>
+                    <interfaceOnly>true</interfaceOnly>
+                    <serializableModel>true</serializableModel>
+                    <singleContentTypes>true</singleContentTypes>
+                    <dateLibrary>java8</dateLibrary>
+                    <useMicroProfileOpenAPIAnnotations>true</useMicroProfileOpenAPIAnnotations>
+                    <useJakartaEe>true</useJakartaEe>
+                    <useBeanValidation>true</useBeanValidation>
+                    <java17>true</java17>
+                </configOptions>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>v1</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                    <configuration>
+                        <inputSpec>src/main/openapi/onecx-example-v1.yaml</inputSpec>
+                        <apiPackage>gen.org.tkit.onecx.example.rs.v1</apiPackage>
+                        <modelPackage>gen.org.tkit.onecx.example.rs.v1.model</modelPackage>
+                        <modelNameSuffix>DTO</modelNameSuffix>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+----
+====
+
+After we run `mvn clean package` maven plugin will generate in corresponding source code in `target/generated-sources` directory.
+
 === Implementation
+
+To implement the `RoleRestController` we need to create a java class which implements generated interface `gen.org.tkit.onecx.example.rs.v1.RoleInternalApi`.
+
+[source,java]
+----
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.Response;
+
+import gen.org.tkit.onecx.example.rs.v1.RoleInternalApi;
+import gen.org.tkit.onecx.example.rs.v1.model.CreateRoleRequestDTO;
+
+@ApplicationScoped
+public class RoleRestController implements RoleInternalApi {
+
+    @Inject
+    RoleMapper mapper;
+
+    @Inject
+    ExceptionMapper exceptionMapper;
+
+    @Context
+    UriInfo uriInfo;
+
+    @Override
+    public Response createRole(CreateRoleRequestDTO createRoleRequestDTO) {
+        var role = mapper.create(createRoleRequestDTO);
+        role = dao.create(role);
+        return Response
+                .created(uriInfo.getAbsolutePathBuilder().path(role.getId()).build())
+                .entity(mapper.map(theme))
+                .build();
+    }
+
+    // constraint exception exception handler
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> exception(ConstraintException ex) {
+        return exceptionMapper.exception(ex);
+    }
+
+    // constraint violation exception handler
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
+        return exceptionMapper.constraint(ex);
+    }
+
+    // Optimistic lock exception handler
+    @ServerExceptionMapper
+    public RestResponse<ProblemDetailResponseDTO> optimisticLockException(OptimisticLockException ex) {
+        return exceptionMapper.optimisticLock(ex);
+    }
+
+}
+----
 
 === Tests
 
@@ -234,14 +463,20 @@ For the test we add following dependencies to our project
 
 === Security
 
-To enable scope security for backend services we need to add this Maven dependency.
+To enable scope security for backend services we need to add these Maven dependencies.
 
 [source,xml]
 ----
-<dependency>
-    <groupId>org.tkit.onecx.quarkus</groupId>
-    <artifactId>onecx-security</artifactId>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-oidc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.tkit.onecx.quarkus</groupId>
+        <artifactId>onecx-security</artifactId>
+    </dependency>
+</dependencies>
 ----
 
 The next step is to add the `OAuth` scopes to our OpenApi definition. In our example, we add the `read` scope to the `createRole` method.
@@ -256,7 +491,7 @@ info:
   title: example service
   version: 1.0.0
 servers:
-  - url: "http://onecx-exampel-svc:8080"
+  - url: "http://onecx-example-svc:8080"
 paths:
   /internal/roles:
     get:
@@ -321,7 +556,76 @@ The `org.tkit.onecx.quarkus:onecx-security` extension creates security audit dat
 [TIP]
 To disable security setup following property `tkit.security.auth.enabled=false`. This property is part fo (tkit-quarkus-url)[1000kit Quarkus extension]
 
-==== Multi tenancy
+=== Security tests
+
+For testing we use Quarkus `Keycloak` dev services. To activate this feature add this maven dependency.
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkus</groupId>
+    <artifactId>quarkus-test-keycloak-server</artifactId>
+    <scope>test</scope>
+</dependency>
+----
+
+Quarkus will start and configure a `Keycloak` server for our tests but also in the dev mode by default. Now we can configure `user` and they `roles`.
+For example, we add role `role-admin` to user `alice` in our example
+
+[source,properties,subs=attributes+]
+----
+# Enabled security for all requests /* and exclude /q/* quarkus console
+quarkus.http.auth.permission.health.paths=/q/*
+quarkus.http.auth.permission.health.policy=permit
+quarkus.http.auth.permission.default.paths=/*
+quarkus.http.auth.permission.default.policy=authenticated
+
+# TEST
+%test.quarkus.keycloak.devservices.roles.alice=role-admin
+%test.quarkus.keycloak.devservices.roles.bob=role-user
+
+# DEV
+%dev.quarkus.keycloak.devservices.roles.alice=role-admin
+%dev.quarkus.keycloak.devservices.roles.bob=role-user
+----
+
+[TIP]
+How to import the whole realm or configure additional user in to `Keycloak` dev services please check the {quarkus-url}[Quarkus documentation] page.
+
+Now we can use the `io.quarkus.test.keycloak.client.KeycloakTestClient` in our test.
+
+.Example test class
+[%collapsible%open]
+====
+[source,java,subs=attributes+]
+----
+@QuarkusTest
+@TestHTTPEndpoint(RoleRestController.class)
+class RoleRestControllerTest {
+
+    // create keycloak client instance connected to keycloak dev service container
+    KeycloakTestClient keycloakClient = new KeycloakTestClient();
+
+     @Test
+    void oauthTest() {
+         // get the access token of the user alice
+        var token = keycloakClient.getAccessToken("alice");
+
+        // call rest endpoint
+        given().when()
+                .auth().oauth2(token)
+                .contentType(APPLICATION_JSON).get("1").then()
+                .statusCode(Response.Status.OK.getStatusCode());
+
+        // test without oauth token
+        given().when().contentType(APPLICATION_JSON).get("1").then()
+                .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
+    }
+}
+----
+====
+
+=== Multi tenancy
 
 For multi tenancy we will to use {onecx-quarkus-url}[onecx-quarkus-tenant] extension.
 
@@ -361,7 +665,7 @@ tkit.rs.context.tenant-id.enabled=true
 [IMPORTANT]
 Header configuration for the token, and token parsing is implemented in 1000kit {tkit-quarkus-url}[tkit-rest-context] quarkus extensions. Please check the documentation of the extension.
 
-==== Multi tenancy tests
+=== Multi tenancy tests
 
 For the test we can use mock settings where we can define which claim attribute of the token we will use: `%test.tkit.rs.context.tenant-id.mock.claim-org-id=orgId` and we must define mapping between token claim value and tenant ID `%test.tkit.rs.context.tenant-id.mock.data.<claim-value>=<tenant-id>`.
 
