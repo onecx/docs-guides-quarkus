@@ -151,47 +151,6 @@ By default, we will have the following maven dependencies:
 ----
 ====
 
-==== Database configuration
-
-In `onecx` project we do use the `postgresql` database for our backend services.
-
-[source,properties]
-----
-quarkus.datasource.db-kind=postgresql
-quarkus.datasource.jdbc.max-size=30
-quarkus.datasource.jdbc.min-size=10
-
-quarkus.hibernate-orm.database.generation=validate
-quarkus.hibernate-orm.jdbc.timezone=UTC
-quarkus.liquibase.migrate-at-start=true
-quarkus.liquibase.validate-on-migrate=true
-----
-
-==== Database schema change management
-
-For the database schema change management we do use {quarkus-url}[quarkus-liquibase] extension. To generate a database changes or validate the database changes we do use https://github.com/1000kit/tkit-liquibase-plugin[tkit-liquibase-plugin] which is configured in the {onecx-quarkus3-parent-artifact-id}.
-
-Quarkus liquibase configuration
-[source,properties]
-----
-quarkus.liquibase.migrate-at-start=true
-quarkus.liquibase.validate-on-migrate=true
-----
-
-By default, liquibase does not use session lock. To activate the liquibase session lock during the start of our service we do use `com.github.blagerweij:liquibase-sessionlock` liquibase extension. No configuration is need to this extension.
-
-To generate the database changes run following command
-[source,shell]
-----
-mvn clean compile -Pdb-diff
-----
-
-To check if you are missing any changes run following command
-[source,shell]
-----
-mvn validate -Pdb-check
-----
-
 === Generate rest endpoint
 
 In `onecx` project we do use API-first approach. First we need to defined our `REST` interface with `openApi`. Create a `example-v1.yaml` (pattern: <application>-<version>.yaml) in the `src/main/openapi` directory.
@@ -313,7 +272,6 @@ Now we can configure `org.tkit.onecx.quarkus:onecx-openapi-generator` Maven plug
 ----
 ====
 
-
 .OpenApi generator full Maven plugin configuration
 [%collapsible]
 ====
@@ -371,14 +329,20 @@ Now we can configure `org.tkit.onecx.quarkus:onecx-openapi-generator` Maven plug
 
 After we run `mvn clean package` maven plugin will generate in corresponding source code in `target/generated-sources` directory.
 
-=== Implementation
+=== REST Implementation
 
 To implement the `RoleRestController` we need to create a java class which implements generated interface `gen.org.tkit.onecx.example.rs.v1.RoleInternalApi`.
 
+.RoleRestController
+[%collapsible]
+====
 [source,java]
 ----
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
+import jakarta.validation.ConstraintViolationException;
+import org.tkit.quarkus.jpa.exceptions.ConstraintException;
+import jakarta.persistence.OptimisticLockException;
 
 import gen.org.tkit.onecx.example.rs.v1.RoleInternalApi;
 import gen.org.tkit.onecx.example.rs.v1.model.CreateRoleRequestDTO;
@@ -425,6 +389,377 @@ public class RoleRestController implements RoleInternalApi {
 
 }
 ----
+====
+
+For the backend service we need to define exception mapper methods for following exception:
+
+* `jakarta.persistence.OptimisticLockException` - this exception is throw when try to store object in the database with old or wrong `OPTLOCK` number.
+* `jakarta.validation.ConstraintViolationException` - when we activate a validation framework `io.quarkus:quarkus-hibernate-validator` this exception will be thrown when request does not match to the requirements defined in the OpenApi.
+* `org.tkit.quarkus.jpa.exceptions.ConstraintException` - this exception will be thrown for any database constraints.
+
+[TIP]
+With the annotation `@ServerExceptionMapper` we defined the exception mapper for each `Exception` in the context of the RestController.
+
+To map the request `DTO` object to the `JPA` model we use the `Mapstruct`. We define the `RoleMapper` in our example.
+
+[source,java]
+----
+import org.tkit.quarkus.rs.mappers.OffsetDateTimeMapper;
+
+@Mapper(uses = { OffsetDateTimeMapper.class })
+public interface RoleMapper {
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "creationUser", ignore = true)
+    @Mapping(target = "modificationDate", ignore = true)
+    @Mapping(target = "modificationUser", ignore = true)
+    @Mapping(target = "controlTraceabilityManual", ignore = true)
+    @Mapping(target = "modificationCount", ignore = true)
+    @Mapping(target = "persisted", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
+    Role create(CreateRoleRequestDTO dto);
+
+    // ... more mapping methods
+}
+----
+
+The same approach we use for the exception mapper which could be shared between multiple `RestController` for the same rest interface.
+
+[source,java]
+----
+import org.tkit.quarkus.rs.mappers.OffsetDateTimeMapper;
+
+@Mapper(uses = { OffsetDateTimeMapper.class })
+public interface ExceptionMapper {
+
+    default RestResponse<ProblemDetailResponseDTO> constraint(ConstraintViolationException ex) {
+        var dto = exception(ErrorKeys.CONSTRAINT_VIOLATIONS.name(), ex.getMessage());
+        dto.setInvalidParams(createErrorValidationResponse(ex.getConstraintViolations()));
+        return RestResponse.status(Response.Status.BAD_REQUEST, dto);
+    }
+
+    //.... more mapping methods
+}
+----
+
+[NOTE]
+`org.tkit.quarkus.rs.mappers.OffsetDateTimeMapper` mapper is predefined a mapstruct mapper for `OffsetDateTime` and `LocalDateTime` object.
+
+=== JPA layer implementation
+
+For our project we will use the `tkit-quarkus-jpa` and `tkit-quarkus-jpa-models` extension for Quarkus which have simple API on top of JPA. We have abstract `DAO` classes and abstract Entity classes which provides basic `CRUD` operation. For more information please read the extension {tkit-quarkus-url}[tkit-quarkus-jpa] documentation.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.tkit.quarkus.lib</groupId>
+    <artifactId>tkit-quarkus-jpa</artifactId>
+</dependency>
+----
+
+Create User entity class in the `org.tkit.onecx.user.domain.models` package. The entity class extend the `TraceableEntity`. In the entity class can use the Lombok annotation `@Getter` and `@Setter` to generate the getters and setters.
+
+.Example user entity
+[%collapsible%open]
+====
+[source,java]
+----
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.tkit.quarkus.jpa.models.TraceableEntity;
+
+@Entity
+@Table(name = "T_USER")
+public class User extends TraceableEntity {
+
+    @Column(name = "USERNAME")
+    private String username;
+}
+----
+====
+
+.Example user DAO
+[%collapsible%open]
+====
+[source,java]
+----
+import org.tkit.quarkus.jpa.daos.AbstractDAO;
+import javax.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+public class UserDAO extends AbstractDAO<User> {
+
+}
+----
+====
+
+==== Database configuration
+
+In `onecx` project we do use the `postgresql` database for our backend services.
+
+[source,properties]
+----
+quarkus.datasource.db-kind=postgresql
+quarkus.datasource.jdbc.max-size=30
+quarkus.datasource.jdbc.min-size=10
+
+quarkus.hibernate-orm.database.generation=validate
+quarkus.hibernate-orm.jdbc.timezone=UTC
+quarkus.liquibase.migrate-at-start=true
+quarkus.liquibase.validate-on-migrate=true
+----
+
+[TIP]
+The parameter `quarkus.hibernate-orm.log.sql` will activate the hibernate logs in the console.
+
+==== Database schema change management
+
+{liquibase-url}[Liquibase] is an open source tool for database schema change management. We will this framework in our example. Liquibase does have abstraction layer xml, json or yaml to support multi databases. Liquibase can generate the changes and compare our Hibernate model with existing database.
+
+For the database schema change management we do use {quarkus-url}[quarkus-liquibase] extension. To generate a database changes or validate the database changes we do use https://github.com/1000kit/tkit-liquibase-plugin[tkit-liquibase-plugin] which is configured in the {onecx-quarkus3-parent-artifact-id}.
+
+Quarkus liquibase configuration
+[source,properties]
+----
+quarkus.liquibase.migrate-at-start=true
+quarkus.liquibase.validate-on-migrate=true
+----
+
+By default, liquibase does not use session lock. To activate the liquibase session lock during the start of our service we do use `com.github.blagerweij:liquibase-sessionlock` liquibase extension. No configuration is need to this extension.
+
+To generate the database changes run following command
+[source,shell]
+----
+mvn clean compile -Pdb-diff
+----
+
+To check if you are missing any changes run following command
+[source,shell]
+----
+mvn validate -Pdb-check
+----
+
+==== JPA date-time
+
+First, you need to configure the database server to use the UTC timezone. For example PostgreSQL default is UTC. Second, you need to set hibernate.jdbc.time_zone Hibernate property to the value of UTC. For the Quarkus application we need set key quarkus.hibernate-orm.jdbc.timezone to UTC value in the application.properties.
+
+[source,properties]
+----
+quarkus.hibernate-orm.jdbc.timezone=UTC
+----
+
+The date representation in the database is store in the UTC as long number. Date fields in the JPA entity represents this database date as LocalDateTime. On the another hand the DTO represents the date as ISO text. To get it running we need to create a mapper which will map the LocalDateTime to OffsetDatetime. In the mapping we should not lose the Offset/Zone information.
+
+[IMPORTANT]
+The date representation in the JPA entity is the LocalDateTime java type and in the DTO object is the OffsetDateTime java type.
+
+.Example user entity
+[%collapsible]
+====
+[source,java]
+----
+@Entity
+@Table(name = "T_USER")
+public class User extends TraceableEntity {
+    private String username;
+    private LocalDateTime date;
+}
+----
+====
+
+.Example user DTO
+[%collapsible]
+====
+[source,java]
+----
+@RegisterForReflection
+public class UserDTO extends TraceableDTO {
+    private String username;
+    private OffsetDateTime date;
+}
+----
+====
+
+.Example user mapper
+[%collapsible]
+====
+[source,java]
+----
+import org.tkit.quarkus.rs.mappers.OffsetDateTimeMapper;
+
+@Mapper(uses = OffsetDateTimeMapper.class)
+public interface UserMapper {
+
+    UserDTO map(User model);
+
+    User create(UserDTO dto);
+}
+----
+====
+
+In the tests we need to configure the RestAssured to use text representation of the date-time.
+
+[source,java]
+----
+public abstract class AbstractTest {
+    static {
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(
+            ObjectMapperConfig.objectMapperConfig().jackson2ObjectMapperFactory(
+                (cls, charset) -> {
+                     ObjectMapper objectMapper = new ObjectMapper();
+                     objectMapper.registerModule(new JavaTimeModule());
+                     objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+                     return objectMapper;
+                }
+            )
+        );
+    }
+}
+----
+
+=== JPA custom business ID
+
+==== PostgresSQL SERIAL type
+
+[source,java,subs=attributes+]
+----
+@GeneratorType(type = BidStringGenerator.class, when = GenerationTime.INSERT)
+@Column(name = "CUSTOM")
+String custom;
+----
+
+==== Generic sequence implementation
+
+[source,java,subs=attributes+]
+----
+import javax.persistence.Column;
+import org.my.group.BusinessId;
+
+@BusinessId(sequence = "SEQ_MY_ENTITY_BID")
+@Column(name = "bid_anno")
+Long bid;
+----
+
+Follow the implementation of the custom annotation `BusinessId`.
+
+.BusinessId
+[%collapsible]
+====
+[source,java,subs=attributes+]
+----
+import org.hibernate.annotations.ValueGenerationType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@ValueGenerationType(generatedBy = BusinessIdValueGeneration.class)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BusinessId {
+
+    String sequence() default "";
+
+}
+----
+====
+
+.BusinessIdValueGeneration
+[%collapsible]
+====
+[source,java,subs=attributes+]
+----
+import org.hibernate.tuple.AnnotationValueGeneration;
+import org.hibernate.tuple.GenerationTiming;
+import org.hibernate.tuple.ValueGenerator;
+
+public class BusinessIdValueGeneration implements AnnotationValueGeneration<BusinessId> {
+
+    String sequence;
+
+    @Override
+    public void initialize(BusinessId annotation, Class<?> propertyType) { sequence = annotation.sequence(); }
+
+    @Override
+    public GenerationTiming getGenerationTiming() { return GenerationTiming.INSERT; }
+
+    @Override
+    public ValueGenerator<?> getValueGenerator() { return new BusinessIdGenerator(sequence); }
+
+    @Override
+    public boolean referenceColumnInSql() { return false; }
+
+    @Override
+    public String getDatabaseGeneratedReferencedColumnValue() { return null; }
+}
+
+----
+====
+
+.BusinessIdGenerator
+[%collapsible]
+====
+[source,java,subs=attributes+]
+----
+import org.hibernate.Session;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.jdbc.ReturningWork;
+import org.hibernate.tuple.ValueGenerator;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+
+public class BusinessIdGenerator implements ValueGenerator<Long> {
+
+    String sequence;
+
+    BusinessIdGenerator(String sequence) {
+        this.sequence = sequence;
+    }
+
+    @Override
+    public Long generateValue(Session session, Object owner) {
+        SessionFactoryImpl sessionFactory = (SessionFactoryImpl) session.getSessionFactory();
+        String sql = sessionFactory.getJdbcServices().getDialect().getSequenceNextValString(sequence);
+        ReturningWork<Long> seq = connection -> {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                 ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getLong(1);
+            }
+        };
+        return sessionFactory.getCurrentSession().doReturningWork(seq);
+    }
+}
+----
+====
+
+We need to add the sequence to the `import.sql` for the local development.
+[source,sql,subs=attributes+]
+----
+CREATE SEQUENCE IF NOT EXISTS seq_my_entity_bid;
+----
+
+==== Custom in-Memory generator
+
+[source,java,subs=attributes+]
+----
+@GeneratorType(type = BidStringGenerator.class, when = GenerationTime.INSERT)
+@Column(name = "CUSTOM")
+String custom;
+----
+
+Follow the implementation of the custom generator `BidStringGenerator`.
+[source,java,subs=attributes+]
+----
+public class BidStringGenerator implements ValueGenerator<String> {
+
+    @Override
+    public String generateValue(Session session, Object owner) {
+        MyEntity e = (MyEntity) owner;
+        return e.name + "+" + UUID.randomUUID();
+    }
+}
+----
 
 === Tests
 
@@ -436,30 +771,93 @@ For the test we add following dependencies to our project
 [source,xml,subs=attributes+]
 ----
 <dependencies>
-        <!-- TEST -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-mockito</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.tkit.quarkus.lib</groupId>
-            <artifactId>tkit-quarkus-test-db-import</artifactId>
-            <scope>test</scope>
-        </dependency>
+    <!-- TEST -->
+    <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-junit5</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-junit5-mockito</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.tkit.quarkus.lib</groupId>
+        <artifactId>tkit-quarkus-test-db-import</artifactId>
+        <scope>test</scope>
+    </dependency>
 </dependencies>
 ----
 ====
+
+[NOTE]
+The Quarkus tests has support for the injection and mocking. This will work only for the Quarkus JVM tests and not for native image test or integration tests with a docker image. Try to avoid this in our tests to have much more reusable tests. In most cases, the mock service also fakes code to pass the test.
+
+For our test we will use this pattern for the test classes
+
+* `<Name>RestControllerTest extends AbstractTest` - the extended test for the common and unit test. For example: UserRestControllerTest
+* `<Name>RestControllerTestIT extends <Name>RestControllerTest` - the extended test for the integration test. For example: UserRestControllerTestIT
+
+The 1000kit test extension `tkit-quarkus-test-db-import` does have support to import test data for the tests during the test execution. We will create our test data as `XML` data. Store the xml file in the `src/test/resources/data` directory under name `test-internal.xml`. The magic is in the `@WithDBData` annotation which could be used on the `Class` or `Method` level. Example of the xml test data file:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <ROLE guid="r21" optlock="0" name="n1" />
+    <ROLE guid="r22" optlock="0" name="n2" />
+</dataset>
+----
+
+[IMPORTANT]
+Only the `XML` DbUnit `FlatXmlDataSet` format is supported.
+
+
+Example of the `RoleRestControllerTest` class.
+
+[source,java]
+----
+@QuarkusTest
+@TestHTTPEndpoint(RoleRestController.class)
+@WithDBData(value = "data/test-internal.xml", deleteBeforeInsert = true, deleteAfterTest = true, rinseAndRepeat = true)
+class RoleRestControllerTest extends AbstractTest {
+
+    @Test
+    void getRoleByIdTest() {
+
+        // get role by ID
+        var dto = given().contentType(APPLICATION_JSON).get("r12")
+                .then().statusCode(OK.getStatusCode()).contentType(APPLICATION_JSON)
+                .extract().body().as(RoleDTO.class);
+
+        // validate role
+        assertThat(dto).isNotNull();
+        assertThat(dto.getName()).isEqualTo("n2");
+        assertThat(dto.getId()).isEqualTo("r12");
+
+        // not found
+        given().contentType(APPLICATION_JSON).get("___").then().statusCode(NOT_FOUND.getStatusCode());
+    }
+}
+----
+
+Example of the role rest controller integration test.
+
+[source,java]
+----
+import io.quarkus.test.junit.QuarkusIntegrationTest;
+
+@QuarkusIntegrationTest
+class RoleRestControllerTestIT extends RoleRestControllerTest {
+
+}
+----
 
 === Security
 

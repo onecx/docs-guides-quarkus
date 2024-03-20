@@ -11,6 +11,7 @@
 
 :mapstruct-url: https://mapstruct.org/documentation/stable/reference/html/
 :lombok-url: https://projectlombok.org/
+:liquibase-url: https://www.liquibase.com/
 
 :helm-url: https://helm.sh/docs/
 
