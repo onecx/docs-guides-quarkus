@@ -101,9 +101,9 @@ Example application
 
 == Docker
 
-In the project we do have defined two docker files one for java base docker image and one for native build docker image. Source code of base docker image is in the GitHub repository {docker-quarkus-jvm-url}[docker-quarkus-native] and {docker-quarkus-jvm-url}[docker-quarkus-jvm].
+In the project we have defined two docker files, one for java base docker image and one for native build docker image. The source code for the base docker image can be found in the GitHub repositories {docker-quarkus-jvm-url}[docker-quarkus-native] and {docker-quarkus-jvm-url}[docker-quarkus-jvm].
 
-In the project we define corresponding `Dockerfiles`
+The two `Dockerfiles` look like this:
 
 .Dockerfile.jvm definition
 [%collapsible%open]
@@ -135,11 +135,11 @@ COPY --chown=1001:root target/*-runner /work/application
 Docker build configuration is defined in the {onecx-quarkus3-parent-url}[{onecx-quarkus3-parent-artifact-id}]
 
 [TIP]
-For more information about Quarkus docker extension check the official documentation {quarkus-url}container-image[quarkus-container-image-docker].
+For more information about Quarkus docker extension, please check the official documentation {quarkus-url}container-image[quarkus-container-image-docker].
 
 == Helm
 
-In the `src/main/helm` we muss defined `Chart.yaml` in version `v2` and `values.yaml`. Helm chart of the service muss use the {helm-quarkus-app-name} helm dependencies. Alias for all onecx quarkus application is `{helm-quarkus-app-alias}`. GitHub pipeline replace chart `version` and `appVersion` during the build with current service version.
+In the `src/main/helm` we musst define `Chart.yaml` in version `v2` and `values.yaml`. The helm chart of the services musst use the {helm-quarkus-app-name} helm dependencies. The alias for every onecx quarkus application is `{helm-quarkus-app-alias}`. The GitHub pipeline will replace the chart `version` and `appVersion` during the build with current service version.
 
 .Chart.yaml
 [%collapsible%open]
