@@ -14,7 +14,7 @@
         <quarkus.version>3.8.2</quarkus.version>
         <onecx.parent.version>0.37.0</onecx.parent.version>
         <onecx.quarkus.version>0.13.0</onecx.quarkus.version>
-        <tkit.quarkus.version>2.15.0</tkit.quarkus.version>
+        <tkit.quarkus.version>2.25.0</tkit.quarkus.version>
     </properties>
 
     <dependencies>
