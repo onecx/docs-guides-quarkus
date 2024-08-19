@@ -1,12 +1,12 @@
 :onecx-github-url: https://github.com/onecx/
 
-:quarkus-version: 3.8.2
+:quarkus-version: 3.13.2
 :quarkus-url: https://quarkus.io/guides/
 
-:tkit-quarkus-version: 2.15.0
+:tkit-quarkus-version: 2.31.0
 :tkit-quarkus-url: https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/index.html
 
-:onecx-quarkus-version: 0.13.0
+:onecx-quarkus-version: 0.26.0
 :onecx-quarkus-url: https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/index.html
 
 :mapstruct-url: https://mapstruct.org/documentation/stable/reference/html/
@@ -31,7 +31,7 @@
 // onecx parent
 :onecx-quarkus3-parent-group-id: org.tkit.onecx
 :onecx-quarkus3-parent-artifact-id: onecx-quarkus3-parent
-:onecx-quarkus3-parent-version: 0.37.0
+:onecx-quarkus3-parent-version: 0.62.0
 :onecx-quarkus3-parent-url: {onecx-github-url}{onecx-quarkus3-parent-artifact-id}
 
 // Resources
@@ -58,4 +58,4 @@
 
 :example-parent-group-id: org.tkit.onecx
 :example-parent-artifact-id: onecx-quarkus3-parent
-:example-parent-version: 0.37.0
+:example-parent-version: 0.62.0
