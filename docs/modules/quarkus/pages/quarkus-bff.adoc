@@ -14,25 +14,336 @@ Project maven parent configuration, artifactId and project version.
 More information about maven parent pom pattern https://maven.apache.org/guides/introduction/introduction-to-the-pom.html[Apache Maven Pom Documentation]
 
 .Maven parent configuration
-[%collapsible%open]
+[%collapsible%closed]
 ====
 [source,xml,subs=attributes+]
 ----
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <groupId>{onecx-example-parent-group-id}</groupId>
-        <artifactId>{onecx-example-parent-artifact-id}</artifactId>
-        <version>{onecx-example-parent-version}</version>
-    </parent>
-
-    <artifactId>{onecx-example-artifact-id}-svc</artifactId>
-    <version>{onecx-example-version}</version>
-
-</project>
+include::example$quarkus/bff/snippets/parent-pom.xml[]
 ----
 ====
+=== Dependencies
+Include all needed dependencies. Depending on your project they may vary but the following will fit for most cases.
+
+.Dependencies
+[%collapsible%closed]
+====
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/example/pom.xml[tag=dependencies]
+----
+====
+
+=== application.properties
+Add the following properties. They may vary depending on your project. This is just a base set.
+
+.application.properties
+[%collapsible%closed]
+====
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/snippets/base-set-application.properties[]
+----
+====
+
+=== OpenApi generator
+After creating your xref:quarkus-rest-api.adoc[openapi file] in the right xref:project-structure.adoc[ directory ] :
+
+.Maven pom configuration for BFF-Api => Code
+[%collapsible%closed]
+====
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/snippets/openapi-generator-bff-pom.xml[]
+----
+====
+.Maven pom configuration for client-api download
+[%collapsible%closed]
+====
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/snippets/openapi-download-client-pom.xml[]
+----
+====
+.application.properties for code-generation
+[%collapsible%closed]
+====
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/snippets/openapi-generator-application.properties[]
+----
+====
+[TIP]
+The download of a clients openapi file only works for non-secured open-source files.
+Otherwise you need to manually paste the openapi file into your project and adjust your application.properties.
+
+=== Creating a Rest-Controller
+After writing your openapi file run `mvn clean package` or `mvn clean package -DskipTests`
+to generate objects and your rest-controller interface into the /target folder.
+
+.Controller definition and annotations
+[%collapsible%closed]
+====
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/controllers/ThemeRestController.java[tag=controllerClass ]
+----
+====
+
+.Use of client and mapper
+[%collapsible%closed]
+====
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/controllers/ThemeRestController.java[tag=clientAndMapper ]
+----
+====
+
+.Endpoint implementation
+[%collapsible%closed]
+====
+[source,yaml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/openapi/openapi-bff.yaml[tag=exampleEndpoint ]
+----
+
+[source,java,subs=attributes+]
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/controllers/ThemeRestController.java[tag=exampleEndpoint ]
+====
+
+.Exception handling
+[%collapsible%closed]
+====
+In most cases you don't need to handle exceptions manually. We define *@ServerExceptionMapper*
+to let quarkus automatically handle the mentioned exceptions.
+For this to work you need to use a custom ExceptionMapper so that the Exceptions will be converted to an equal format.
+You can just use xref:example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/mappers/ExceptionMapper.java[this one].
+
+After this you can add the following to your rest-controller.
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/controllers/ThemeRestController.java[tag=serverExceptionMapper ]
+----
+[TIP]
+Depending on your project, you may have more or less exceptions that need to be handled.
+When using multiple clients in one rest-call it's also possible, that you need to manually handle exceptions
+with a *catch{}* block.
+====
+
+=== Mapper
+Create a mapper for each entity. We use Mapstruct for this.
+https://mapstruct.org/documentation/stable/reference/html/[Mapstruct Documentation]
+
+You need to map all incoming dto's to the svc models and the model of the svc response back to a dto.
+
+.Example
+[%collapsible%closed]
+====
+
+Mapper:
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/mappers/ThemeMapper.java[tag=mapper]
+----
+Used in controller like this:
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/controllers/ThemeRestController.java[tag=exampleEndpoint]
+----
+====
+
+=== Logger
+Since your controller is already annotated with `@LogService`
+You can now create a custom logger.
+You should add each incoming object to the logger but only as little as possible and as much as necessary fields for each object.
+
+.Example
+[%collapsible%closed]
+====
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/log/ThemeLog.java[tag=logger]
+----
+[IMPORTANT]
+Make sure that you don't add critical data to logger like passwords or tokens!
+====
+
+== Tests
+To start writing unit-tests you should first create an abstract class called `AbstractTest.java` inside of your test package.
+You can copy and paste the following class.
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/AbstractTest.java[]
+----
+We use the `@QuarkusTestResource(MockServerTestResource.class)`
+annotation to include a mockserver for our tests.
+
+The following defined users `bob` and `alice` are later used to test the access with different sets of permissions.
+`Alice` is used as an admin with all permissions and `bob` as a user with just a subset of permissions.
+#See more @security section#
+The `APM_HEADER_PARAM` is later used to authenticate our test requests.
+#See more @security section#
+
+Whenever your data contains any type of dates you will also need the static RestAssured.config
+Otherwise the test responses will contain dates as numbers.
+
+=== Mockserver
+Now, before writing tests,  we will add all necessary files to make the mockserver work.
+
+1. Create a package called `mockserver` inside your test resources package.
+See  xref:project-structure.adoc[project structure] for more information.
+
+2. Create an empty file called `internal.json` in this package.
+This file will be used by the mockserver to save expectations whenever you create one inside your tests.
+
+3. Create a file called `mockserver.properties` inside your test.resources package.
+You can copy and paste the content from xref:example$quarkus/bff/example/src/test/resources/mockserver.properties[here].
+
+4. Add the following properties to your application.properties
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/resources/application.properties[tag=mockServerProperties]
+----
+You will need to change the last line from `onecx_theme_svc` to the config key of your client.
+This will point all test requests to your client to the mockserver.
+[TIP]
+You will need this line for each client you use.
+
+=== Unit Tests
+Now everything is prepared to write your first test.
+Each rest-controller class will have its own test class.
+First create a new test class. By convention, you should name it like this:
+`[RestControllerName]Test`.
+
+Define your class like this:
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=testClassDefinition]
+----
+The `@TestHTTPEndpoint` will set the base-url of your test-request to the one of your controller.
+
+
+.Example
+[%collapsible%closed]
+====
+If you have a bff with 6 endpoints distributed to 2 controllers like:
+`/yourBff/themes/{id} (GET)
+/yourBff/themes (POST)
+/yourBff/themes/search (POST)
+/yourBff/users/{id} (GET) +
+/yourBff/users (POST)
+/yourBff/users/search (POST)`
+
+This would result in 2 controllers. One for themes and one for users.
+When testing the ThemesRestController you can now make test-request to just
+`.post(/search)`, `.post(/{id})`, `.post()` because the base url of your tests will already
+include "/yourBff/themes".
+====
+
+Now instantiate a `KeycloakTestClient` and inject the `MockServerClient`:
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=keycloakAndMockClient]
+----
+Now you should also add the following `@BeforeEach` method to reset all mocks after each test.
+Since you probably want to run multiple test cases related to a single client-endpoint, this method ensures, that
+you don't hit a created expectation of a before executed test by accident.
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=resetExpectations]
+----
+[TIP]
+You can also manually remove a created expectation in a test itself.
+If you need to mock multiple endpoints in a single test, you can add more
+mock ids to the `resetExpectation()` method.
+Make sure, that in a single test all mocks have a unique id. Otherwise, they would overwrite themselves.
+
+##The following example test will test a POST "/search" endpoint.
+##
+
+For a unit test you need to create a method annotated with `@Test`
+[TIP]
+Tests should have a describing name including the expectation.
+For example `searchThemesByCriteria()` or +
+`searchThemes_missingCriteria_400()`
+
+A test needs 3 main components.
+
+*Expectation (Mock)*
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=exampleMock]
+----
+*Request*
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=exampleRequest]
+----
+*Assertions*
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[tag=exampleAssertions]
+----
+
+See more in xref:example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerTest.java[this reference] for an example test class.
+
+=== Integration Tests (IT)
+ITs ensure that everything also works when your application is containerized with docker.
+Create for each test class an integration test file named like:
+`[RestControllerName]IT`.
+Annotate this class with `@QuarkusIntegrationTest` and extend it by your test class.
+
+It should look like this:
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/java/org/tkit/onecx/themes/bff/rs/ThemeRestControllerIT.java[tag=integrationTest]
+----
+
+== Security & Permissions
+Our BFFs are double secured. To activate endpoint security you need to add the following properties to the application.properties
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/resources/application.properties[tag=authentication]
+----
+This will ensure, that the BFF is only accessible for requests with a valid APM token.
+All requests in your test file will then need +
+`.header(APM_HEADER_PARAM, ADMIN)` +
+which we already added before.
+
+To limit access based on permissions first make sure you added the following dependency to your pom.
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/example/pom.xml[tag=onecxPermissions]
+----
+and activated the permission generation of the `openapi-generator-maven-plugin`.
+[source,xml,subs=attributes+]
+----
+include::example$quarkus/bff/example/pom.xml[tag=permissionGeneration]
+----
+
+After that you can add permissions to each endpoint inside your openapi file:
+[source,yaml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/openapi/openapi-bff.yaml[tag=examplePermission]
+----
+We typically use `read`, `write` and `delete` as actions. +
+This may vary depending on the project.
+Each permission is a pair of resource(entity) + action. In this example case the resource(entity) is "themes" and the action "read".
+
+After that you need to add those permissions to the values.yaml like here:
+[source,yaml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/helm/values.yaml[]
+----
+This will trigger an operator on each deployment which creates those permissions in the permission-svc.
+
+To use those permissions in your tests you firstly need to add the following to each request.
+`.auth().oauth2(keycloakClient.getAccessToken(ADMIN))`
+
+and this to your application.properties
+[source,yaml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/resources/application.properties[tag=permissionProperties]
+----
+Finally, we need to add mocks for the permission-svc.
+You can copy and paste xref:example$quarkus/bff/example/src/test/resources/mockserver/permissions.json[this file] into the
+mockserver folder and adjust it by changing the resource, in this case "themes", and actions if needed.
+

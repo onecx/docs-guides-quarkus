@@ -1,0 +1,158 @@
+---
+openapi: 3.0.3
+info:
+  title: onecx-theme-bff
+  description: OneCx theme Bff
+  version: '1.0'
+servers:
+  - url: http://onecx-theme-bff:8080/
+tags:
+  - name: theme
+paths:
+  #tag::exampleEndpoint[]
+  #tag::examplePermission[]
+  /themes/search:
+    post:
+      x-onecx:
+        permissions:
+          themes:
+            - read
+      #end::examplePermission[]
+      tags:
+        - themes
+      description: Search themes by criteria
+      operationId: searchThemes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThemeSearchCriteria'
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemePageResult'
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
+        "404":
+          description: Not Found
+        #end::exampleEndpoint[]
+components:
+  schemas:
+    Theme:
+      type: object
+      properties:
+        modificationCount:
+          format: int32
+          type: integer
+        creationDate:
+          $ref: '#/components/schemas/OffsetDateTime'
+        creationUser:
+          type: string
+        modificationDate:
+          $ref: '#/components/schemas/OffsetDateTime'
+        modificationUser:
+          type: string
+        id:
+          type: string
+        name:
+          minLength: 2
+          type: string
+        displayName:
+          minLength: 2
+          type: string
+        cssFile:
+          type: string
+        description:
+          type: string
+        assetsUrl:
+          type: string
+        logoUrl:
+          type: string
+        faviconUrl:
+          type: string
+        previewImageUrl:
+          type: string
+        assetsUpdateDate:
+          type: string
+        properties:
+          type: object
+        operator:
+          type: boolean
+    ThemeSearchCriteria:
+      type: object
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        pageNumber:
+          type: integer
+          format: int32
+          default: 0
+        pageSize:
+          type: integer
+          format: int32
+          default: 100
+          maximum: 1000
+    ThemePageResult:
+      type: object
+      properties:
+        totalElements:
+          format: int64
+          type: integer
+        number:
+          format: int32
+          type: integer
+        size:
+          format: int32
+          type: integer
+        totalPages:
+          format: int64
+          type: integer
+        themes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Theme'
+    OffsetDateTime:
+      format: date-time
+      type: string
+      example: 2022-03-10T12:15:50-04:00
+    ProblemDetailResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailParam'
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailInvalidParam'
+    ProblemDetailParam:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ProblemDetailInvalidParam:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
