@@ -1,0 +1,165 @@
+---
+openapi: 3.0.3
+info:
+  title: onecx-theme internal service
+  version: 1.0.0
+servers:
+  - url: "http://onecx-theme-svc:8080"
+tags:
+  - name: themesInternal
+paths:
+  /internal/themes/search:
+    post:
+      security:
+        - oauth2: [ ocx-th:all, ocx-th:read ]
+      tags:
+        - themesInternal
+      description: Search for themes
+      operationId: searchThemes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThemeSearchCriteria'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThemePageResult'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetailResponse'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://oauth.simple.api/token
+          scopes:
+            ocx-th:all: Grants access to all operations
+            ocx-th:read: Grants read access
+            ocx-th:write: Grants write access
+            ocx-th:delete: Grants access to delete operations
+  schemas:
+    ThemeSearchCriteria:
+      type: object
+      properties:
+        name:
+          type: string
+        pageNumber:
+          format: int32
+          description: The number of page.
+          default: 0
+          type: integer
+        pageSize:
+          format: int32
+          description: The size of page
+          default: 100
+          maximum: 1000
+          type: integer
+    ThemePageResult:
+      type: object
+      properties:
+        totalElements:
+          format: int64
+          description: The total elements in the resource.
+          type: integer
+        number:
+          format: int32
+          type: integer
+        size:
+          format: int32
+          type: integer
+        totalPages:
+          format: int64
+          type: integer
+        stream:
+          type: array
+          items:
+            $ref: '#/components/schemas/Theme'
+    Theme:
+      required:
+        - name
+        - displayName
+      type: object
+      properties:
+        modificationCount:
+          format: int32
+          type: integer
+        creationDate:
+          $ref: '#/components/schemas/OffsetDateTime'
+        creationUser:
+          type: string
+        modificationDate:
+          $ref: '#/components/schemas/OffsetDateTime'
+        modificationUser:
+          type: string
+        id:
+          type: string
+        name:
+          minLength: 2
+          type: string
+        displayName:
+          minLength: 2
+          type: string
+        cssFile:
+          type: string
+        description:
+          type: string
+        assetsUrl:
+          type: string
+        logoUrl:
+          type: string
+        faviconUrl:
+          type: string
+        previewImageUrl:
+          type: string
+        assetsUpdateDate:
+          type: string
+        properties:
+          type: object
+        operator:
+          type: boolean
+          default: false
+    OffsetDateTime:
+      format: date-time
+      type: string
+      example: 2022-03-10T12:15:50-04:00
+    ProblemDetailResponse:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        detail:
+          type: string
+        params:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailParam'
+        invalidParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemDetailInvalidParam'
+    ProblemDetailParam:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    ProblemDetailInvalidParam:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string

@@ -1,0 +1,21 @@
+<plugin>
+    <groupId>com.googlecode.maven-download-plugin</groupId>
+    <artifactId>download-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>add-a-unique-and-describing-id-here</id>
+            <phase>generate-resources</phase>
+            <goals>
+                <goal>wget</goal>
+            </goals>
+            <configuration>
+                <url>
+                    add your github raw url here
+                </url>
+                <outputDirectory>target/tmp/openapi</outputDirectory>
+                <outputFileName>your-output-file-name.yaml</outputFileName>
+                <skipCache>true</skipCache>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
