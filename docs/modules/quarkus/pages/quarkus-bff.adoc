@@ -116,7 +116,12 @@ include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/
 In most cases you don't need to handle exceptions manually. We define *@ServerExceptionMapper*
 to let quarkus automatically handle the mentioned exceptions.
 For this to work you need to use a custom ExceptionMapper so that the Exceptions will be converted to an equal format.
-You can just use xref:example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/mappers/ExceptionMapper.java[this one].
+You can just use the following file.
+
+[source,java,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/main/java/org/tkit/onecx/themes/bff/rs/mappers/ExceptionMapper.java[]
+----
 
 After this you can add the following to your rest-controller.
 [source,java,subs=attributes+]
@@ -196,8 +201,16 @@ See  xref:project-structure.adoc[project structure] for more information.
 This file will be used by the mockserver to save expectations whenever you create one inside your tests.
 
 3. Create a file called `mockserver.properties` inside your test.resources package.
-You can copy and paste the content from xref:example$quarkus/bff/example/src/test/resources/mockserver.properties[here].
+You can copy and paste the content from the following file:
 
+.mockserver.properties
+[%collapsible%closed]
+====
+[source,yaml,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/resources/mockserver.properties[]
+----
+====
 4. Add the following properties to your application.properties
 [source,yaml,subs=attributes+]
 ----
@@ -345,6 +358,14 @@ and this to your application.properties
 include::example$quarkus/bff/example/src/main/resources/application.properties[tag=permissionProperties]
 ----
 Finally, we need to add mocks for the permission-svc.
-You can copy and paste xref:example$quarkus/bff/example/src/test/resources/mockserver/permissions.json[this file] into the
-mockserver folder and adjust it by changing the resource, in this case "themes", and actions if needed.
+You can copy and paste the content of the following file and save it into the
+mockserver folder as permissions.json and adjust it by changing the resource, in this case "themes", and actions if needed.
 
+.permissions.json
+[%collapsible%closed]
+====
+[source,json,subs=attributes+]
+----
+include::example$quarkus/bff/example/src/test/resources/mockserver/permissions.json[]
+----
+====
