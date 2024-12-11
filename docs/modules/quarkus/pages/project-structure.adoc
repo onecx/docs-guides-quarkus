@@ -76,10 +76,10 @@ sequenceDiagram
     UserMapper-->>-UserRestController: DTO model
 ....
 
-* RestController – Any class named RestController is supposed to expose API to outside world  For example:  xref:example$quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/rs/internal/controllers/UserRestController.java[UserRestController]
-* Service – (IntermediateService) the core components containing business logic, shareable piece of codes for other components usually controllers or other services as well. For example: xref:example$quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/domain/services/UserValidationService.java[UserValidationService]
-* Mapper - Object mapper for mapping DTO to internal models and vice versa. For example: xref:example$quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/rs/internal/mappers/UserMapper.java[UserMapper].
-* DAO - Data access object (JPA entity wrapper) For example: xref:example$quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/domain/daos/UserDAO.java[UserDAO]
+ * RestController – Any class named RestController is supposed to expose API to outside world  For example:  link:../examples/quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/rs/internal/controllers/UserRestController.java[UserRestController]
+* Service – (IntermediateService) the core components containing business logic, shareable piece of codes for other components usually controllers or other services as well. For example:  link:../examples/quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/domain/services/UserValidationService.java[UserValidationService]
+* Mapper - Object mapper for mapping DTO to internal models and vice versa. For example: link:../examples/quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/rs/internal/mappers/UserMapper.java[UserMapper].
+* DAO - Data access object (JPA entity wrapper) For example: link:../examples/quarkus/base/example/src/main/java/org/tkit/onecx/quarkus/example/domain/daos/UserDAO.java[UserDAO]
 
 Each project should have own package which contains the domain of the project.
 All projects in the `onecx` context start with a package `{project-structure-package}` and package `<artefactId | simplified>`
