@@ -29,7 +29,7 @@ Include all needed dependencies. Depending on your project they may vary but the
 ====
 [source,xml,subs=attributes+]
 ----
-include::example$quarkus/bff/example/pom.xml[tag=dependencies]
+include::example$quarkus/bff/example/pom.xml[tag=dependencies,indent=0]
 ----
 ====
 

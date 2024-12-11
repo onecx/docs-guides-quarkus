@@ -6,3 +6,39 @@ updates:
       interval: daily
     labels:
       - dependencies
+  - package-ecosystem: maven
+    directory: "/docs/modules/quarkus/base/example"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+  - package-ecosystem: "docker"
+    directory: "/docs/modules/quarkus/base/example/src/main/docker"
+    schedule:
+      interval: daily
+    labels:
+      - docker-image
+  - package-ecosystem: maven
+    directory: "/docs/modules/quarkus/bff/example"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+  - package-ecosystem: "docker"
+    directory: "/docs/modules/quarkus/bff/example/src/main/docker"
+    schedule:
+      interval: daily
+    labels:
+      - docker-image
+  - package-ecosystem: maven
+    directory: "/docs/modules/quarkus/svc/example"
+    schedule:
+      interval: daily
+    labels:
+      - dependencies
+  - package-ecosystem: "docker"
+    directory: "/docs/modules/quarkus/svc/example/src/main/docker"
+    schedule:
+      interval: daily
+    labels:
+      - docker-image

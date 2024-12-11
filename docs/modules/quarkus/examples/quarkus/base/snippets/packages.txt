@@ -1,0 +1,12 @@
+domain.models                       // JPA entities
+domain.criteria                     // JPA criteria
+domain.daos                         // DAO and search criteria for the entities
+domain.services                     // Common intermediate shared domain services
+rs                                  // common rs classes (CORSFilter, JaxRSActivator..)
+rs.internal.controllers             // REST controllers
+rs.internal.mappers                 // internal DTOs mappers
+rs.internal.services                // internal intermediate services
+rs.external.<version>.controllers            // REST controllers
+rs.external.<version>.logs                   // log mappers
+rs.external.<version>.mappers                // external DTOs mappers
+rs.external.<version>.services               // Intermediate services for the rest <version> interface

@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    <!-- tag::head[] -->
     <modelVersion>4.0.0</modelVersion>
-
+    <!-- tag::parent[] -->
     <parent>
         <groupId>org.tkit.onecx</groupId>
         <artifactId>onecx-quarkus3-parent</artifactId>
         <version>0.72.0</version>
     </parent>
-
+    <!-- end::parent[] -->
     <artifactId>onecx-theme-svc</artifactId>
     <version>999-SNAPSHOT</version>
+    <!-- tag::head[] -->
 
     <dependencies>
         <dependency>
@@ -31,10 +32,6 @@
             <groupId>org.tkit.quarkus.lib</groupId>
             <artifactId>tkit-quarkus-jpa-tenant</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.tkit.quarkus.lib</groupId>-->
-<!--            <artifactId>tkit-quarkus-data-import</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.tkit.quarkus.lib</groupId>
             <artifactId>tkit-quarkus-jpa</artifactId>
@@ -177,6 +174,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- tag::openapi-plugin[] -->
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -221,6 +219,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- end::openapi-plugin[] -->
         </plugins>
     </build>
 

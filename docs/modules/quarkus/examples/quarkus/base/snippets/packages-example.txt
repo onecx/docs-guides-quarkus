@@ -1,0 +1,15 @@
+{project-structure-package}
+    quarkus
+        example
+            domain
+                models              // JPA entities
+                daos                // DAO for the entities
+                services            // DAO for the entities
+            rs                      //common rs classes (CORSFilter, JaxRSActivator..)
+                controllers         // REST controllers
+                internal
+                mappers             // internal DTOs mappers
+                external
+                    <version>
+                        controllers // REST controllers
+                        mappers     // external DTOs mappers

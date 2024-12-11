@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <!-- tag::parent[] -->
+    <parent>
+        <groupId>org.tkit.onecx</groupId>
+        <artifactId>onecx-quarkus3-parent</artifactId>
+        <version>0.67.0</version>
+    </parent>
+    <!-- end::parent[] -->
+
+    <!-- tag::project[] -->
+    <groupId>org.tkit.onecx</groupId>
+    <artifactId>onecx-example</artifactId>
+    <version>999-SNAPSHOT</version>
+    <!-- end::project[] -->
+
+    <dependencies>
+
+    </dependencies>
+</project>
