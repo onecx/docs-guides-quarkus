@@ -1,0 +1,8 @@
+include::onecx-example-attributes.adoc[opts=optional]
+
+== onecx-example
+
+include::docs.adoc[opts=optional]
+
+
+include::onecx-example-docs.adoc[opts=optional]
