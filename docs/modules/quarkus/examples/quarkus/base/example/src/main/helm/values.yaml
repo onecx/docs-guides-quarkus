@@ -1,0 +1,6 @@
+app:
+ name: svc
+ db:
+   enabled: true
+ image:
+  repository: "onecx/onecx-quarkus-example"

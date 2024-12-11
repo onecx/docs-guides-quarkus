@@ -1,0 +1,18 @@
+.github                         // github configuration
+src                             // source code directory
+  main                          // main resources
+     docker                     // docker configuration
+        Dockerfile.jvm          // JVM docker image
+        Dockerfile.native       // Native docker image
+     helm                       // helm template
+        Chart.yaml              // helm chart for application
+        values.yaml             // helm chart values for the application
+     openapi                    // openapi definitions
+        example-openapi.yaml    // example api definition
+     java                       // java source code
+     resources                  // application resources
+       application.properties   // quarkus configuration
+  test                          // test resources
+     java                       // java tests
+     resources                  // test resources
+pom.xml                         // maven project configuration

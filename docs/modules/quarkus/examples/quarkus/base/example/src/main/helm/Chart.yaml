@@ -1,0 +1,17 @@
+apiVersion: v2
+name: onecx-quarkus-example
+version: 0.0.0
+appVersion: 0.0.0
+description: Onecx quarkus example
+keywords:
+  - example
+sources:
+  - https://github.com/onecx/onecx-quarkus-example
+maintainers:
+  - name: Tkit Developer
+    email: tkit_dev@1000kit.org
+dependencies:
+  - name: helm-quarkus-app
+    alias: app
+    version: ^0
+    repository: oci://ghcr.io/onecx/charts

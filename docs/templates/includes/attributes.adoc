@@ -50,12 +50,12 @@
 :onecx-example-version: 999-SNAPSHOT
 
 // Old
-:example-maven-artifact-id: onecx-quarkus-example
-:example-maven-version: 999-SNAPSHOT
-:example-maven-class-name: io.github.onecx.example.ExampleRestController
-
-:parent-soruce-code-url: {onecx-github-url}onecx-quarkus3-parent
-
-:example-parent-group-id: org.tkit.onecx
-:example-parent-artifact-id: onecx-quarkus3-parent
-:example-parent-version: ${onecx.parent.version}
+// :example-maven-artifact-id: onecx-quarkus-example
+// :example-maven-version: 999-SNAPSHOT
+// :example-maven-class-name: io.github.onecx.example.ExampleRestController
+//
+// :parent-soruce-code-url: {onecx-github-url}onecx-quarkus3-parent
+//
+// :example-parent-group-id: org.tkit.onecx
+// :example-parent-artifact-id: onecx-quarkus3-parent
+// :example-parent-version: ${onecx.parent.version}
