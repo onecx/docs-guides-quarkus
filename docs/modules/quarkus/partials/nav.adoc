@@ -1,0 +1,10 @@
+* Quarkus
+** xref:documentation:quarkus:project-structure.adoc[Project Structure]
+** xref:documentation:quarkus:quarkus-github-actions.adoc[Project GitHub actions]
+** xref:documentation:quarkus:quarkus-rest-api.adoc[Rest API CRUD guidelines]
+** xref:documentation:quarkus:quarkus-svc.adoc[Backend service (svc)]
+** xref:documentation:quarkus:quarkus-bff.adoc[Backend for frontends (bff)]
+** xref:documentation:quarkus:quarkus-operator.adoc[K8s operator (operator)]
+
+
+
