@@ -5,6 +5,6 @@
 ** xref:documentation:quarkus:quarkus-svc.adoc[Backend service (svc)]
 ** xref:documentation:quarkus:quarkus-bff.adoc[Backend for frontends (bff)]
 ** xref:documentation:quarkus:quarkus-operator.adoc[K8s operator (operator)]
-
-
++
+include::documentation:onecx-quarkus:partial$nav.adoc[]
 
