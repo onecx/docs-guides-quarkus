@@ -1,10 +1,18 @@
-= Quarkus
+= Quarkus in OneCX Guides
+:page-title: Quarkus in OneCX Guides
+:page-description: Guides and best practices for developing Quarkus-based microservices within the OneCX platform.
+:page-keywords: quarkus, microservices, onecx, guides, best practices
+:page-author: OneCX Documentation Team
+:page-category: Guides
+:page-type: documentation
+:page-language: en
+:page-version: current
+:page-release-date: 2024-06-01
 :icons: font
 
 include::./includes/attributes.adoc[]
 
-1000kit Quarkus
-
+1000kit Quarkus::
 * 1000kit quarkus extensions: {tkit-quarkus-url}[{tkit-quarkus-url}]
 
 Quarkus Kubernetes native Java stack comes with an extendable framework.
