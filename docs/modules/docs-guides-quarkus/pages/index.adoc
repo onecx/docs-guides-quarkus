@@ -1,5 +1,5 @@
-= Quarkus in OneCX
-:page-title: Quarkus in OneCX
+= Guide for Quarkus in OneCX
+:page-title: Guide for Quarkus in OneCX
 :page-description: Guides and best practices for developing Quarkus-based microservices within the OneCX platform.
 :page-keywords: quarkus, microservices, onecx, guides, best practices
 :page-author: OneCX Documentation Team
