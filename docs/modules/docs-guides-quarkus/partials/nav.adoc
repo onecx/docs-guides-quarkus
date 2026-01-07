@@ -1,4 +1,4 @@
-*** xref:documentation:docs-guides-quarkus:index.adoc[Quarkus in OneCX]
+*** xref:documentation:docs-guides-quarkus:index.adoc[Guide]
 **** xref:documentation:docs-guides-quarkus:project-structure.adoc[Project Structure]
 **** xref:documentation:docs-guides-quarkus:quarkus-github-actions.adoc[GitHub Actions]
 **** xref:documentation:docs-guides-quarkus:quarkus-rest-api.adoc[Rest API Guidelines]
