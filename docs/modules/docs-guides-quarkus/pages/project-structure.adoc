@@ -17,13 +17,9 @@ include::example$quarkus/base/snippets/structure.txt[]
 ----
 
 The helm template are in the `src/main/helm` and dockerfile is in the `src/main/docker` directory.
-
-GitHub project configuration is defined in the `.github` directory. For more information please check next chapter xref:quarkus-github-actions.adoc[Project GitHub Actions]
-
-IMPORTANT: Onecx Quarkus project GitHub Actions xref:quarkus-github-actions.adoc[Project GitHub Actions] setup.
+GitHub project configuration is defined in the `.github` directory.
 
 == Maven configuration
-
 Onecx project are using
 [source,xml,subs=attributes+]
 ----
@@ -31,7 +27,6 @@ include::example$quarkus/base/example/pom.xml[tag=parent,indent=0]
 ----
 
 == Java naming convention
-
 [mermaid]
 ....
 flowchart LR
@@ -96,9 +91,9 @@ For example our Maven project:
 [source,shell,subs=attributes+]
 ----
 src
-    main
-        java
-            {project-structure-package}.quarkus.example
+  main
+    java
+      {project-structure-package}.quarkus.example
 ----
 
 Microservice package structure:
@@ -145,8 +140,8 @@ Docker build configuration is defined in the maven parent project.
 [TIP]
 For more information about Quarkus docker extension, please check the official documentation {quarkus-url}container-image[quarkus-container-image-docker].
 
-== Helm
 
+== Helm
 In the `src/main/helm` we muss define `Chart.yaml` in version `v2` and `values.yaml`. The alias for every onecx quarkus application is `{helm-quarkus-app-alias}`. The GitHub pipeline will replace the chart `version` and `appVersion` during the build with current service version.
 
 .Chart.yaml
@@ -166,8 +161,4 @@ In our example we did activate the `database` configuration `app.db.enabled: tru
 [IMPORTANT]
 For product base delivery `helm-of-helm` we do need to specify the `app.name`, which is the name of the component in the product (for example svc, bff, operator).
 
-[NOTE]
-For more details of the helm template configuration check the repository of {helm-quarkus-app-url}[{helm-quarkus-app-name}]
-
-[TIP]
-Helm documentation {helm-url}[helm].
+For more details of the helm template configuration check the repository of {helm-quarkus-app-url}[{helm-quarkus-app-name}] and the {helm-url}[Helm documentation].
