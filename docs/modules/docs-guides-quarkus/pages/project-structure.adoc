@@ -1,9 +1,11 @@
+ifdef::env-site[]
+include::partial$_attributes.adoc[]
+endif::[]
+
 = Project structure
-:icons: font
 
-include::./includes/attributes.adoc[]
-
-TIP: The source code of the sample application is located in the documentation repository https://github.com/onecx/docs-guides-quarkus/tree/main/docs/modules/quarkus/examples/quarkus/base/example[Base example]
+[TIP]
+The source code of the sample application is located in the documentation repository https://github.com/onecx/docs-guides-quarkus/tree/main/docs/modules/quarkus/examples/quarkus/base/example[Base example]
 
 == OneCx Quarkus project structure
 

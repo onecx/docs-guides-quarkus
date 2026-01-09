@@ -1,6 +1,8 @@
-= Backend service (svc)
+ifdef::env-site[]
+include::partial$_attributes.adoc[]
+endif::[]
 
-include::./includes/attributes.adoc[]
+= Backend service (svc)
 
 == Project setup
 
@@ -14,10 +16,11 @@ Project maven parent configuration, artifactId and project version.
 More information about maven parent pom pattern https://maven.apache.org/guides/introduction/introduction-to-the-pom.html[Apache Maven Pom Documentation]
 
 .Maven parent configuration
-
 [source,xml,subs=attributes+]
 ----
+ifdef::env-site[]
 include::example$quarkus/svc/example/pom.xml[tag=parent,indent=0]
+endif::[]
 ----
 
 === Dependencies
