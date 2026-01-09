@@ -1,6 +1,8 @@
 = K8s operator (operator)
 
-include::./includes/attributes.adoc[]
+ifdef::env-site[]
+include::partial$_attributes.adoc[]
+endif::[]
 
 == Project setup
 

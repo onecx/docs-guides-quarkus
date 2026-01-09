@@ -1,3 +1,7 @@
+ifdef::env-site[]
+include::partial$_attributes.adoc[]
+endif::[]
+
 = REST API
 
 == REST API for CRUD services

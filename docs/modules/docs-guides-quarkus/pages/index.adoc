@@ -1,5 +1,9 @@
-= Guide for Quarkus in OneCX
-:page-title: Guide for Quarkus in OneCX
+ifdef::env-site[]
+include::partial$_attributes.adoc[]
+endif::[]
+
+= Quarkus in OneCX
+:page-title: Quarkus in OneCX
 :page-description: Guides and best practices for developing Quarkus-based microservices within the OneCX platform.
 :page-keywords: quarkus, microservices, onecx, guides, best practices
 :page-author: OneCX Documentation Team
@@ -8,12 +12,8 @@
 :page-language: en
 :page-version: current
 :page-release-date: 2024-06-01
-:icons: font
 
-include::./includes/attributes.adoc[]
-
-1000kit Quarkus::
-* 1000kit quarkus extensions: {tkit-quarkus-url}[{tkit-quarkus-url}]
+This guide provides best practices and guidelines for developing microservices using Quarkus within the OneCX platform. It covers project structure, REST API design, backend for frontends (BFF) patterns, backend services, and Kubernetes operator integration.
 
 Quarkus Kubernetes native Java stack comes with an extendable framework.
 
@@ -23,12 +23,11 @@ Quarkus Kubernetes native Java stack comes with an extendable framework.
 * Quarkus quick starts: https://github.com/quarkusio/quarkus-quickstarts[https://github.com/quarkusio/quarkus-quickstarts]
 * Quarkiverse: https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html[https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html]
 * Quarkiverse source code: https://github.com/quarkiverse[https://github.com/quarkiverse]
+* {tkit-quarkus-url}[1000kit Quarkus Extensions]
 
-== Requirements
-
+== Tools
 For the developing the Quarkus application we need to install these tools:
 
-=== Java developer IDE
 * https://www.jetbrains.com/de-de/idea/download/[IntelliJ IDEA] *RECOMMENDED!*
 ** Plugins
 *** Quarkus Tools by Red-Hat
@@ -43,10 +42,8 @@ For the developing the Quarkus application we need to install these tools:
 * https://code.visualstudio.com/download[Visual Code]
 * https://neovim.io/[NeoVim]
 
-== Links
 
-Few of thousand useful links:
-
+== Useful Resources
 * https://quarkus.io/quarkus-workshops/super-heroes/[Quarkus workshop]
 * https://microprofile.io/[MicroProfile - specification]
 * https://smallrye.io/[Smallrye - MicroProfile implementation]
