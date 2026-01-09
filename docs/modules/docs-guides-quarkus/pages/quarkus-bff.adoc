@@ -53,7 +53,7 @@ include::example$quarkus/bff/snippets/base-set-application.properties[]
 ====
 
 === OpenApi generator
-After creating your xref:quarkus-rest-api.adoc[openapi file] in the right xref:project-structure.adoc[ directory ] :
+After creating your OpenAPI file in the right xref:project-structure.adoc[ directory ] :
 
 .Maven pom configuration for BFF-Api => Code
 [%collapsible%closed]

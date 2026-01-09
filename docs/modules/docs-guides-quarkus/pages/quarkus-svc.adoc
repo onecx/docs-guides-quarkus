@@ -2,6 +2,8 @@ ifdef::env-site[]
 include::partial$_attributes.adoc[]
 endif::[]
 
+:api_guidelines_link:  xref:documentation:onecx-docs-dev:guidelines/api_guidelines.adoc[API Guidelines]
+
 = Backend service (svc)
 
 == Project setup
@@ -141,14 +143,7 @@ By default, we will have the following maven dependencies:
 
 In `onecx` project we do use API-first approach. First we need to defined our `REST` interface with `openApi`. Create a `example-v1.yaml` (pattern: <application>-<version>.yaml) in the `src/main/openapi` directory.
 
-.Example openapi file
-[%collapsible]
-====
-[source,yaml,subs=attributes+]
-----
-include::example$quarkus/svc/example/src/main/openapi/onecx-theme-internal-openapi.yaml[]
-----
-====
+Please taken into account the {api_guidelines_link}.
 
 Now we can configure `org.tkit.onecx.quarkus:onecx-openapi-generator` Maven plugin. The important part of the Maven plugin is xml configuration element.
 

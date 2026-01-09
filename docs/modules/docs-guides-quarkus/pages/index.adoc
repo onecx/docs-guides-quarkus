@@ -24,6 +24,7 @@ Quarkus Kubernetes native Java stack comes with an extendable framework.
 * Quarkiverse: https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html[https://quarkiverse.github.io/quarkiverse-docs/index/index/index.html]
 * Quarkiverse source code: https://github.com/quarkiverse[https://github.com/quarkiverse]
 * {tkit-quarkus-url}[1000kit Quarkus Extensions]
+* {api_guidelines_link}
 
 == Tools
 For the developing the Quarkus application we need to install these tools:

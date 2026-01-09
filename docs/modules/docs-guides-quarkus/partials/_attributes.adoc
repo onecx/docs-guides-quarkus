@@ -7,7 +7,9 @@
 :tkit-quarkus-url: https://1000kit.github.io/tkit-quarkus/current/tkit-quarkus/index.html
 
 :onecx-quarkus-version: 0.26.0
-:onecx-quarkus-url: https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/index.html
+:onecx-quarkus-url:      https://onecx.github.io/docs/onecx-quarkus/current/onecx-quarkus/index.html
+:api_guidelines_link:    xref:documentation:onecx-docs-dev:guidelines/api_guidelines.adoc[API Guidelines]
+
 
 :mapstruct-url: https://mapstruct.org/documentation/stable/reference/html/
 :lombok-url: https://projectlombok.org/
