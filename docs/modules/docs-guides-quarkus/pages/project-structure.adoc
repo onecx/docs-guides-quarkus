@@ -2,15 +2,15 @@ ifdef::env-site[]
 include::partial$_attributes.adoc[]
 endif::[]
 
-= Project structure
+= Quarkus Project Structure in OneCX
 
 [TIP]
 The source code of the sample application is located in the documentation repository https://github.com/onecx/docs-guides-quarkus/tree/main/docs/modules/quarkus/examples/quarkus/base/example[Base example]
 
-== OneCx Quarkus project structure
+== Maven Project Structure
+OneCx Quarkus project is https://maven.apache.org/[Maven] project.We use *default maven structure* which includes: java code and resources, helm templates and dockerfile.
 
-OneCx Quarkus project is https://maven.apache.org/[Maven] project.We use default maven structure which includes: java code and resources, helm templates and dockerfile.
-
+.Maven project structure
 [source,java]
 ----
 include::example$quarkus/base/snippets/structure.txt[]
@@ -19,14 +19,15 @@ include::example$quarkus/base/snippets/structure.txt[]
 The helm template are in the `src/main/helm` and dockerfile is in the `src/main/docker` directory.
 GitHub project configuration is defined in the `.github` directory.
 
-== Maven configuration
-Onecx project are using
+== Maven Configuration
+
+.pom.xml parent configuration
 [source,xml,subs=attributes+]
 ----
 include::example$quarkus/base/example/pom.xml[tag=parent,indent=0]
 ----
 
-== Java naming convention
+== Java Namings
 [mermaid]
 ....
 flowchart LR
