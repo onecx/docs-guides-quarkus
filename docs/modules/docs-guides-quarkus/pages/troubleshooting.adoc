@@ -1,0 +1,30 @@
+= Troubleshooting Quarkus Issues
+
+This page provides assistance in resolving known issues when working with Quarkus in OneCX.
+
+
+Known Issues::
+. Could not find a valid Docker environment
++
+--
+*Occurrence:*
+This issue occurs when attempting to run or test the application.
+
+*Error Message:*
+[source,log]
+----
+2026-02-05 13:04:30,413 ERROR [org.tes.doc.DockerClientProviderStrategy] (build-70) Could not find a valid Docker environment. Please check configuration. Attempted configurations were:     UnixSocketClientProviderStrategy: failed with exception BadRequestException (Status 400: {"message":"client version 1.32 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version"} )     DockerDesktopClientProviderStrategy: failed with exception NullPointerException (Cannot invoke "java.nio.file.Path.toString()" because the return value of "org.testcontainers.dockerclient.DockerDesktopClientProviderStrategy.getSocketPath()" is null)As no valid configuration was found, execution cannot continue. See https://java.testcontainers.org/on_failure.html for more details. 2026-02-05 13:04:30,673 INFO  [org.tes.DockerClientFactory] (build-30) Testcontainers version: 1.21.3
+----
+
+*Root Cause:*
+The installed Docker version is incompatible with the TestContainers API version being used. The Docker client version is newer than the minimum supported API version required by TestContainers.
+
+*Resolution:*
+Create a new configuration file in your home directory named `.docker-java.properties` and add the following property:
+[source,properties]
+----
+api.version=1.44
+----
+
+NOTE: This issue will be resolved in the next Quarkus LTS version following 3.27 LTS, which includes an updated TestContainers dependency that supports newer Docker API versions.
+-- 
