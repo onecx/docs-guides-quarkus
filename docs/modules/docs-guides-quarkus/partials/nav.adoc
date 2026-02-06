@@ -4,3 +4,4 @@
 **** xref:documentation:docs-guides-quarkus:quarkus-svc.adoc[Backend Service]
 **** xref:documentation:docs-guides-quarkus:quarkus-operator.adoc[K8s Operator]
 **** xref:documentation:docs-guides-quarkus:create-example-project.adoc[Example Project]
+**** xref:documentation:docs-guides-quarkus:troubleshooting.adoc[Troubleshooting]
