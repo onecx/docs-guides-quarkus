@@ -28,7 +28,7 @@ include::example$quarkus/base/example/pom.xml[tag=parent,indent=0]
 ----
 
 == Java Namings
-[mermaid]
+[source,mermaid]
 ....
 flowchart LR
     classDef service fill:#adebb3,stroke:#333
@@ -55,7 +55,7 @@ Basically all our microservice consist of 3 main layers
 Java classes:
 
 Validation request sequence:
-[mermaid]
+[source,mermaid]
 ....
 sequenceDiagram
     UserRestController->>+UserMapper: map DTO request to internal model
@@ -65,7 +65,7 @@ sequenceDiagram
 ....
 
 Create user request sequence:
-[mermaid]
+[source,mermaid]
 ....
 sequenceDiagram
     UserRestController->>+UserMapper: map DTO request to internal model
